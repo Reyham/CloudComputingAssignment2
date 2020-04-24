@@ -5,7 +5,6 @@ click==7.1.1
 click-plugins==1.1.1
 cligj==0.5.0
 cloudant==2.13.0
-cmudict==0.4.3
 Fiona==1.8.13.post1
 geopandas==0.7.0
 idna==2.9
