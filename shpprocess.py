@@ -12,7 +12,13 @@ from shapely.geometry import Polygon
 
 class SHPProcessor():
     # load shape/geometry data for SA2/SA3 neighbourhood, depending on filename
-    def __init__(self, filename):
+    def __init__(self, type):
+        filename = ""
+        if type == "SA2":
+            filename = "shpfiles/SA2_2016_AUST.shp"
+        elif type == "SA3":
+            filename =  "shpfiles/SA3_2016_AUST.shp"
+
         self.sadata = geopandas.read_file(filename)
 
     '''

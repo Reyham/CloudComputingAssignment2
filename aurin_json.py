@@ -87,7 +87,7 @@ def setup_geo_election_data():
         # match coordinates to their SA2 area
         election_data_sa2 = {}
 
-        matched_coordinates_obj = json.loads(SHPProcessor("shpfiles/SA2_2016_AUST.shp").match_coordinates(election_data_polling_place))
+        matched_coordinates_obj = json.loads(SHPProcessor("SA2").match_coordinates(election_data_polling_place))
 
         # aggregate data: sum total liberal and labour votes for each SA2 area
         for x in matched_coordinates_obj["features"]:
