@@ -14,7 +14,7 @@ class CouchDBInstance():
         partition_key = "partition1"
         document_key = str(uuid.uuid4())
         json['_id'] = ':'.join((partition_key, document_key))
-        db.create_document(json)`
+        db.create_document(json)
 
 
     def delete_all(self, db):

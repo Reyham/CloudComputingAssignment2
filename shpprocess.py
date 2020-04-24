@@ -4,7 +4,6 @@
     The digitial statistical boundaries of SA2 are given in shp files for each state
 '''
 
-import shapefile
 import geopandas, json
 import pandas as pd
 from shapely.geometry import Polygon
