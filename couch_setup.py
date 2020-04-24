@@ -35,7 +35,6 @@ class CouchDBInstance():
             db.create_query_index(index="code_indexes", fields=["sa2_code16", "sa3_code16, doc_type"])
 
             # create reduce functions to aggregate twitter results (using cURL bc it's easier)
-            
 
 
             # dummy for replica
@@ -47,10 +46,12 @@ class CouchDBInstance():
 
             # test upload
             x = aurin_json.setup_geo_economy_data()
+            y = aurin_json.setup_geo_trust_data()
+            z = aurin_json.setup_geo_election_data()
 
-            for geodata in x:
+            for geodata in x + y + z:
                 self.insert(db, geodata)
 
 
-
+# populate db with aurin data for each scenario
 i = CouchDBInstance('http://127.0.0.1:5984')
