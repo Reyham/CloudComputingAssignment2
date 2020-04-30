@@ -1,4 +1,6 @@
 import sys
+import os
+import time
 import json
 import tweepy
 from tweepy import OAuthHandler
@@ -11,8 +13,8 @@ This script harvests tweets in Australia using the the twitter APIs referenced o
 https://developer.twitter.com/en/docs/api-reference-index
 
 It takes in three arguments: the query filename, output filename and the desired result size as command line arguments.
-Results are stored as a JSON file output.
-
+e.g. "python twitter-harvester.py query-config.txt output.json 50"
+Results are stored as a JSON file output. 
 The final part of the script starts a collection stream of all the tweets in Australia.
 
 Noted by developer.twitter.com: 
@@ -25,6 +27,9 @@ https://developer.twitter.com/en/docs/tweets/rules-and-filtering/overview/standa
 
 TODO:
 - Filter results by month/week/date so we avoid duplicates on multiple calls.
+
+"pip install tweepy" for the tweepy package.
+Alternatively, "pip install git+https://github.com/tweepy/tweepy.git".
    
 '''
 
@@ -32,6 +37,7 @@ TODO:
 
 AUS_GEOCODE = '-28.071981,134.078631,2137km'
 AUS_BOUNDS = [112.62,-44.12,154.11,-10.84]
+DESIRED_TOTAL_TWEETS = 5000000
 QUERY_FILE = 0
 RESULT_FILE = 1
 RESULT_SIZE = 2
@@ -95,19 +101,34 @@ if __name__ == "__main__":
     auth = OAuthHandler(API_KEY, API_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
     
-    
     api = tweepy.API(auth)
-
-    result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE).items(int(arguments[RESULT_SIZE]))
     
-    with open(arguments[RESULT_FILE], 'a') as f:
-        for tweet in result:
-            f.write(json.dumps(tweet._json))
-            f.write("\n")
+    totalTweetsCollected = 0
     
-    '''
-    twitter_stream = Stream(auth, TwitterListener(output_file = arguments[RESULT_FILE]))
-    print("Stream start.")
-    twitter_stream.filter(locations = AUS_BOUNDS)
-    '''
+    # Collect tweets.
+    
+    while (totalTweetsCollected <= DESIRED_TOTAL_TWEETS):
+        try:
+            result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE).items(int(arguments[RESULT_SIZE]))
+            
+            with open(arguments[RESULT_FILE], 'a') as f:
+                for tweet in result:
+                    f.write(json.dumps(tweet._json))
+                    f.write("\n")
+                    totalTweetsCollected += 1
+            
+            '''
+            twitter_stream = Stream(auth, TwitterListener(output_file = arguments[RESULT_FILE]))
+            print("Stream start.")
+            twitter_stream.filter(locations = AUS_BOUNDS)
+            '''
+        
+        except tweepy.RateLimitError:
+            print("Hit twitter API limit, waiting 16 minutes...")
+            time.sleep(60 * 16);
+        
+        except tweepy.error.TweepError:
+            print("Caught tweepy error: %s \n" % tweepy.error.response.text)
+            
+        
     
