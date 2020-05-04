@@ -9,7 +9,7 @@ from tweepy.streaming import StreamListener
 
 '''
 
-This script harvests tweets in Australia using the the twitter APIs referenced on this page: 
+This script harvests tweets in Australia (and only geo-tagged tweets) using the the twitter APIs referenced on this page: 
 https://developer.twitter.com/en/docs/api-reference-index
 
 It takes in three arguments: the query filename, output filename and the desired result size as command line arguments.
@@ -33,7 +33,7 @@ Alternatively, "pip install git+https://github.com/tweepy/tweepy.git".
    
 '''
 
-# Query parameters.
+# Query parameters. (Set DESIRED_TOTAL_TWEETS to how many tweets you want in total)
 
 AUS_GEOCODE = '-28.071981,134.078631,2137km'
 AUS_BOUNDS = [112.62,-44.12,154.11,-10.84]
@@ -43,12 +43,14 @@ RESULT_FILE = 1
 RESULT_SIZE = 2
 NUMBER_OF_ARGUMENTS = 3
 
-# API keys and tokens.
+# API keys and tokens. (Set these keys and tokens to your own if possible to avoid rate limits)
 
 API_KEY = 'JaPsT25AdrztzNThyujhdY16w'
 API_SECRET = 'tCKxQnjJPwlieC6qFrZjdvpX9RMY68fXdKR7mZHo7fKsWtxk9k'
 ACCESS_TOKEN = '1252018342069583872-lBzju61OboRigAImgA61lDOYN6Wevm'
 ACCESS_SECRET = 'P78iLHd5Y6ZivLPWJ9APFmcXBSniiuUxybiqjSwt9nHjV'
+
+# Stream API class.
 
 class TwitterListener(StreamListener):
     
@@ -69,6 +71,19 @@ class TwitterListener(StreamListener):
         if status_code == 420:
             return False
 
+# Error handling.
+
+def limit_handled(cursor):
+    while True:
+        try:
+            yield cursor.next()
+        except tweepy.RateLimitError:
+            time.sleep(60 * 16)
+        except tweepy.error.TweepError:
+            print("Caught tweepy error: %s \n" % tweepy.error.response.text)
+ 
+# Main. 
+ 
 if __name__ == "__main__":
     
     # Input validation.
@@ -103,32 +118,32 @@ if __name__ == "__main__":
     
     api = tweepy.API(auth)
     
-    totalTweetsCollected = 0
+    total_tweets_collected = 0
+    latest_id = 1
     
     # Collect tweets.
     
-    while (totalTweetsCollected <= DESIRED_TOTAL_TWEETS):
-        try:
-            result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE).items(int(arguments[RESULT_SIZE]))
+    '''
+    twitter_stream = Stream(auth, TwitterListener(output_file = arguments[RESULT_FILE]))
+    print("Stream start.")
+    twitter_stream.filter(locations = AUS_BOUNDS)
+    '''
+    
+    while (total_tweets_collected <= DESIRED_TOTAL_TWEETS:
+        
+        result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, since_id = latest_id).items(int(arguments[RESULT_SIZE]))
+        
+        with open(arguments[RESULT_FILE], 'a') as f:
+            for tweet in limit_handled(result):
             
-            with open(arguments[RESULT_FILE], 'a') as f:
-                for tweet in result:
+                # Check if tweet has the coordinates or place attributes.
+                
+                if tweet.coordinates is not None or tweet.place is not None:
                     f.write(json.dumps(tweet._json))
                     f.write("\n")
-                    totalTweetsCollected += 1
-            
-            '''
-            twitter_stream = Stream(auth, TwitterListener(output_file = arguments[RESULT_FILE]))
-            print("Stream start.")
-            twitter_stream.filter(locations = AUS_BOUNDS)
-            '''
-        
-        except tweepy.RateLimitError:
-            print("Hit twitter API limit, waiting 16 minutes...")
-            time.sleep(60 * 16);
-        
-        except tweepy.error.TweepError:
-            print("Caught tweepy error: %s \n" % tweepy.error.response.text)
-            
-        
-    
+                
+                if tweet.id > latest_id:
+                    latest_id = tweet.id
+                
+                total_tweets_collected += 1
+                
