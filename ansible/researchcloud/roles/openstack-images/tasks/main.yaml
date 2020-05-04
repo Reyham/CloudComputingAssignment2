@@ -1,0 +1,20 @@
+---
+# Show all available Openstack images
+- name: Retrieve all available Openstack images
+  os_image_info:
+  # register result to image_result
+  register: image_result
+
+- name: Get image names and Ids
+  set_fact:
+    # set variable image_facts and append it to a new list image name and image id
+    # if image_facts cannot be found/doesn't exits, use default value of empty list
+    image_facts: "{{ image_facts|default([]) + [ {'name': item.name, 'id': item.id} ] }}"
+  loop: '{{ image_result.openstack_image }}'
+  # only append if image name is available
+  when: item.name is defined
+
+- name: Show images
+  debug:
+    msg: "Image name: {{ item.name }}; Image id: {{ item.id }}"
+  loop: '{{ image_facts }}'
