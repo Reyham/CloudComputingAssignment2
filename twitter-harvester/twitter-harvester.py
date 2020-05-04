@@ -13,7 +13,8 @@ This script harvests tweets in Australia (and only geo-tagged tweets) using the 
 https://developer.twitter.com/en/docs/api-reference-index
 
 It takes in three arguments: the query filename, output filename and the desired result size (possibly a few thousand or million) as command line arguments.
-e.g. "python twitter-harvester.py search query-config.txt output.json 50"
+e.g. "python twitter-harvester.py search output.json query-config.txt 50"
+e.g. "python twitter-harvester.py stream output.json"
 Results are stored as a JSON file output. 
 The final part of the script starts a collection stream of all the tweets in Australia.
 
@@ -38,8 +39,8 @@ Alternatively, "pip install git+https://github.com/tweepy/tweepy.git".
 AUS_GEOCODE = '-28.071981,134.078631,2137km'
 AUS_BOUNDS = [112.62,-44.12,154.11,-10.84]
 API_TYPE = 0
-QUERY_FILE = 1
-RESULT_FILE = 2
+RESULT_FILE = 1
+QUERY_FILE = 2
 RESULT_SIZE = 3
 STREAM_ARGS = 2
 SEARCH_ARGS = 4
@@ -57,9 +58,8 @@ ACCESS_SECRET = 'P78iLHd5Y6ZivLPWJ9APFmcXBSniiuUxybiqjSwt9nHjV'
 
 class TwitterListener(StreamListener):
     
-    def __init__(self, q, output_file):
+    def __init__(self, output_file):
         super().__init__()
-        self.query = q
         self.output_file = output_file
     
     def on_data(self, data):
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     if len(arguments) < 1:
         print("Example commandline configurations: ")
         print("python twitter-harvester.py stream output.json")
-        print("python twitter-harvester.py search query-config.txt output.json 50")
+        print("python twitter-harvester.py search output.json query-config.txt 50")
         sys.exit()
     
     # Check whether first argument is either search or stream.
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     
     if arguments[API_TYPE] == STREAM_TYPE:
         print("Starting stream.")
-        twitter_stream = Stream(auth, TwitterListener(q = query, output_file = arguments[RESULT_FILE]))
+        twitter_stream = Stream(auth, TwitterListener(output_file = arguments[RESULT_FILE]))
         twitter_stream.filter(locations = AUS_BOUNDS)
     
     elif arguments[API_TYPE] == SEARCH_TYPE:
