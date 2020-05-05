@@ -1,0 +1,3 @@
+---
+- name: Create database
+  shell: curl -X PUT "http://{{configserver}}:5984/database-name?n=3&q=8" --user admin-user

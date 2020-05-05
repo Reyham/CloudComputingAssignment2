@@ -1,0 +1,82 @@
+---
+# Run on all nodes
+- name: Set up cluster
+  uri:
+    url:  http://{{username}}:{{password}}@{master}:5984/_cluster_setup
+    method: POST
+    body:
+      action: enable_cluster
+      bind_address: 0.0.0.0
+      username: {{username}}
+      password: {{password}}
+      node_count: 4
+    body_format: json
+    headers:
+      Content-Type: application/json
+    register: cluster_setup
+  loop: {{nodes}}
+
+
+# Run on workers
+- name: Connect to worker
+  uri:
+    url:  http://{{username}}:{{password}}@{configserver}:5984/_cluster_setup
+    method: POST
+    body:
+      action: enable_cluster
+      bind_address: 0.0.0.0
+      username: {{username}}
+      password: {{password}}
+      port: 5984
+      remote_node: {{item}}
+      remote_current_user: {{username}}
+      remote_current_password: {{password}}
+      node_count: 4
+    body_format: json
+    headers:
+      Content-Type: application/json
+    register: connect_nodes
+  loop: {{workers}}
+# Run on workers
+- name: Connect to cluster, adding node
+  uri:
+    url:  http://{{username}}:{{password}}@{configserver}:5984/_cluster_setup
+    method: POST
+    body:
+      action: add_node
+      bind_address: 0.0.0.0
+     username: {{username}}
+      password: {{password}}
+      port: 5984
+      remote_node: {{item}}
+      remote_current_user: {{username}}
+      remote_current_password: {{password}}
+      node_count: 4
+    body_format: json
+    headers:
+      Content-Type: application/json
+    register: connect_nodes
+  loop: {{workers}}
+# Complete set up
+- name: Join node to cluster
+  uri:
+    url:  http://{{username}}:{{password}}@{configserver}:5984/_cluster_setup
+    method: POST
+    body:
+      action: finish_cluster
+    body_format: json
+    headers:
+      Content-Type: application/json
+    register: finished_cluster
+# Verify complete set up
+- name: Verify install
+  uri:
+    url: 'http://{{username}}:{{password}}@{configserver}:5984/_cluster_setup'
+    method: GET
+  register: verification
+# Check clustered nodes configuration
+- name: Check clustered nodes configuration
+  uri:
+    url: 'http://{{username}}:{{password}}@<configserver>:5984/_membership'
+    method: GET
+  register: membership
