@@ -1,34 +1,41 @@
 ---
+# Install dependencies on the host
 - name: Install git
   become: yes
   pip:
     name: ['git']
     state: latest
 
+# Install dependencies on the host
 - name: Install python3 pip
   become: yes
   apt:
     name: ['python3-pip']
     state: latest
     update_cache: yes
+
+# Install dependencies on the host
 - name: Install python3 venv
   become: yes
   apt:
     name: ['python3-venv']
     state: latest  
     update_cache: yes
-  
+
+# Install dependencies on the host
 - name: Update pip
   become: yes
   pip:
     name: ['pip']
     state: latest
 
+# Install dependencies on the host
 - name: Install other dependencies
   become: yes
   pip:
     requirements: /requirements.txt
 
+# Install dependencies on the host
 - name: Install GNUPG certificates
   become: yes
   apt:
@@ -38,15 +45,21 @@
     state: latest
     update_cache: yes
 
+# Install dependencies on the host
 - name: Enable CouchDB package repository
   shell: echo "deb https://apache.bintray.com/couchdb-deb bionic main"  | sudo tee -a /etc/apt/sources.list.d/couchdb.list
+
+# Install dependencies on the host
 - name: Add key server
   shell: sudo apt-key adv --keyserver keyserver.ubuntu.com --keyserver-options http-proxy=http://wwwproxy.unimelb.edu.au --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61
+
+# Install dependencies on the host
 - name: Update
   become: yes
   apt:
     update_cache: yes
 
+# Install dependencies on the host
 - name: Install couchDB
   become: yes
   apt:
