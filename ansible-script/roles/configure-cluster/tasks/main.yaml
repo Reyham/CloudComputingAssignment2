@@ -14,11 +14,11 @@
     headers:
       Content-Type: application/json
     register: cluster_setup
-  loop: "{{ nodes }}"
 
 
 # Run on workers
 - name: Connect to worker
+  when: inventory_hostname in groups['workers']
   uri:
     url:  http://{{ username }}:{{ password }}@{{ configserver }}:5984/_cluster_setup
     method: POST
@@ -36,9 +36,10 @@
     headers:
       Content-Type: application/json
     register: connect_nodes
-  loop: "{{ workers }}"
+
 # Run on workers
 - name: Connect to cluster, adding node
+  when: inventory_hostname in groups['workers']
   uri:
     url:  http://{{ username }}:{{ password }}@{configserver}:5984/_cluster_setup
     method: POST
@@ -56,10 +57,10 @@
     headers:
       Content-Type: application/json
     register: connect_nodes
-  loop: "{{ workers }}"
 # Complete set up
 - name: Join node to cluster
-  uri:
+  when: inventory_hostname in groups['configserver']
+    uri:
     url:  http://{{ username }}:{{ password }}@{configserver}:5984/_cluster_setup
     method: POST
     body:
@@ -70,12 +71,14 @@
     register: finished_cluster
 # Verify complete set up
 - name: Verify install
+  when: inventory_hostname in groups['configserver']
   uri:
     url: 'http://{{ username }}:{{ password }}@{{ configserver }}:5984/_cluster_setup'
     method: GET
   register: verification
 # Check clustered nodes configuration
 - name: Check clustered nodes configuration
+  when: inventory_hostname in groups['configserver']
   uri:
     url: 'http://{{ username }}:{{ password }}@{{ configserver }}:5984/_membership'
     method: GET
