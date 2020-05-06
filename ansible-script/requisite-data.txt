@@ -1,0 +1,4 @@
+Name: Ubuntu 20.04
+Instance Flavor: uom.general.2c8g / uom.mse.2c9g
+ID: f3200167-dcd9-4a00-a99a-d2e8e57246d1
+Availability Zone: melbourne-qh2-uom
