@@ -1,4 +1,4 @@
 ---
 - name: Create database
   when: inventory_hostname in groups[configserver]
-  shell: curl -X PUT "http://{{ configserver }}:5984/database-name?n=3&q=8" --user admin-user
+  shell: curl -X PUT "http://{{ hostvars['configserver'].ansible_host }}:5984/database-name?n=3&q=8" --user admin-user
