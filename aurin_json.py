@@ -43,7 +43,7 @@ def setup_geo_trust_data():
         return trust_data
 
 '''
-2. does positive/negative covid19 sentiment correlate with 2019 election results?
+2. does positive/negative tweet sentiment correlate with 2019 election results?
 '''
 def setup_geo_election_data():
     with open("json/election_data.json") as f:
@@ -121,8 +121,7 @@ def setup_geo_election_data():
 
 
 '''
-1. are the economic effects of covid19 hitting more
-economically unequal areas harder? look at centrelink/stimulus keywords by location
+1. are people tweeting about covid19 living in more economically unequal areas?
 '''
 def setup_geo_economy_data():
     with open("json/income_data.json") as f:

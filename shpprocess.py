@@ -65,19 +65,23 @@ class SHPProcessor():
         lats = []
         longs = []
         for corner in json_data['coordinates']:
-            lats.append(corner[0])
-            longs.append(corner[1])
+            lats.append(corner[1])
+            longs.append(corner[0])
 
         polygon = Polygon(zip(longs, lats))
+        print(polygon)
         gdf = geopandas.GeoDataFrame(index=[0], crs=self.sadata.crs, geometry=[polygon])
 
 
-        matched_boxes = geopandas.sjoin(self.sadata, gdf, how="inner", op="contains")
+        matched_boxes = geopandas.sjoin(self.sadata, gdf, how="inner", op="within")
         matched_boxes.drop('geometry',axis=1)
         return matched_boxes.to_json()
 
     def filter_json(self, matched_json):
-        j = json.loads(matched_json)['features'][0]['properties']
+        try:
+            j = json.loads(matched_json)['features'][0]['properties']
+        except IndexError:
+            print(matched_json)
         keep_keys = ["SA3_CODE16", "SA3_NAME16", "SA2_MAIN16",
                     "SA2_NAME16", "STE_NAME16", "GCC_CODE16", "GCC_NAME16"]
         j_ = {k: v for k, v in j.items() if k in keep_keys}
