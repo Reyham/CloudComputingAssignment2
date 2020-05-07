@@ -1,5 +1,6 @@
 - hosts: nodes
+  vars:
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no" 
   roles:
-    - role: install-dependencies
     - role: configure-cluster
     - role: create-database

@@ -2,7 +2,7 @@
 # Run on all nodes
 - name: Set up cluster
   uri:
-    url:  http://admin:password@{{ hostvars['configserver'].ansible_host }}:5984/_cluster_setup
+    url:  http://admin:password@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: enable_cluster
@@ -20,7 +20,7 @@
 - name: Connect to worker
   with_items: "{{ groups['workers'] }}"
   uri:
-    url:  http:///admin:password@{{ hostvars['configserver'].ansible_host }}:5984/_cluster_setup
+    url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: enable_cluster
@@ -41,7 +41,7 @@
 - name: Connect to cluster, adding node
   with_items: "{{ groups['workers'] }}"
   uri:
-    url:  http:///admin:password@{{ hostvars['configserver'].ansible_host }}:5984/_cluster_setup
+    url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: add_node
@@ -60,8 +60,8 @@
 # Complete set up
 - name: Join node to cluster
   when: inventory_hostname in groups['configserver']
-    uri:
-    url:  http:///admin:password@{{ hostvars['configserver'].ansible_host }}:5984/_cluster_setup
+  uri:
+    url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: finish_cluster
@@ -73,13 +73,13 @@
 - name: Verify install
   when: inventory_hostname in groups['configserver']
   uri:
-    url: 'http:///admin:password@{{ hostvars['configserver'].ansible_host }}:5984/_cluster_setup'
+    url: 'http:///admin:password@172.26.130.46:5984/_cluster_setup'
     method: GET
   register: verification
 # Check clustered nodes configuration
 - name: Check clustered nodes configuration
   when: inventory_hostname in groups['configserver']
   uri:
-    url: 'http:///admin:password@{{ hostvars['configserver'].ansible_host }}:5984/_membership'
+    url: 'http:///admin:password@172.26.130.46:5984/_membership'
     method: GET
   register: membership
