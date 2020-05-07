@@ -1,11 +1,12 @@
 import json, csv
 import pandas as pd
+
+
 from shpprocess import SHPProcessor
 
 
 '''
 3. are less trusting areas engaging in more panic buying?
-
 '''
 def setup_geo_trust_data():
     with open("json/trust_data.json") as f:
@@ -120,7 +121,8 @@ def setup_geo_election_data():
 
 
 '''
-1. are the economic effects of covid19 hitting more economically unequal areas harder? look at centrelink/stimulus keywords by location
+1. are the economic effects of covid19 hitting more
+economically unequal areas harder? look at centrelink/stimulus keywords by location
 '''
 def setup_geo_economy_data():
     with open("json/income_data.json") as f:
@@ -166,4 +168,22 @@ def setup_geo_economy_data():
         return income_data
         '''
             ready to insert into couchdb aggregate income data for each SA3 area
+
         '''
+'''
+4: do the frequencies of tweets in different languages
+show a relationship with the migration rate of their neighbourhood
+'''
+def setup_migration_data():
+    with open("json/migration_data.json") as f:
+        data = json.load(f)
+        migration_data = []
+
+        for entry in data['features']:
+            properties = entry['properties']
+            properties['doc_type'] = "q4_data"
+            properties['sa2_code16'] = properties.pop("sa2_main11")
+            properties['sa2_name16'] = properties.pop("sa2_name11")
+            migration_data.append(properties)
+
+        return migration_data

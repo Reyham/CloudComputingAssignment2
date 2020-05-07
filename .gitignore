@@ -2,3 +2,4 @@
 
 *.pyc
 requirements_old.txt
+node_modules/

@@ -3,6 +3,10 @@ import aurin_json
 from cloudant import couchdb, replicator
 from cloudant.design_document import DesignDocument
 
+'''
+    Given a database url, this class setups as a database, and demonstrates
+    how to make a replica with cloudant
+'''
 
 class CouchDBInstance():
     def __init__(self, url):
@@ -32,26 +36,28 @@ class CouchDBInstance():
                 return
 
             # create json_query indexes
-            db.create_query_index(index="code_indexes", fields=["sa2_code16", "sa3_code16, doc_type"])
+            db.create_query_index(fields=["sa2_code16", "sa3_code16, doc_type"])
 
             # create reduce functions to aggregate twitter results (using cURL bc it's easier)
 
 
             # dummy for replica
-            db1 = client.create_database("db1")
+            # db1 = client.create_database("db1")
 
             # create replicas
-            replicator.Replicator(client).create_replication(db, db1, continuous=True)
+            # replicator.Replicator(client).create_replication(db, db1, continuous=True)
 
 
             # test upload
             x = aurin_json.setup_geo_economy_data()
             y = aurin_json.setup_geo_trust_data()
             z = aurin_json.setup_geo_election_data()
+            q = aurin_json.setup_migration_data()
 
-            for geodata in x + y + z:
+            for geodata in x + y + z + q:
                 self.insert(db, geodata)
 
+            print("Completed AURIN data upload to CouchDB")
 
 # populate db with aurin data for each scenario
 i = CouchDBInstance('http://127.0.0.1:5984')
