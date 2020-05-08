@@ -210,7 +210,9 @@ def limit_handled(cursor):
 
 # TODO: insert couchdb code into arg, complete couchdb integration in stream, discard output txt writing in search
 def start_search(type="search", filename="twitter-harvester/query-config.txt", num=50, q=1):
-    # Change DB URL if necessary
+    '''
+        Change DBURL if necessary. This WILL take few minutes one first try, since it sets up aurin data
+    '''
     couchdb = CouchDBInstance(DB_URL)
 
     if type == SEARCH_TYPE:
