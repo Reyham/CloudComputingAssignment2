@@ -52,10 +52,10 @@ SEARCH_TYPE = 'search'
 
 # API keys and tokens. (Set these keys and tokens to your own if possible to avoid rate limits)
 
-API_KEY = 'a72kdQ5oX4rHeEuFxocnso92k'
-API_SECRET = 'YeNIi26sjDGSzIkzNcxxW6lXLSXpkJKBRZtmPDeJnxpE9RvsBj'
-ACCESS_TOKEN = '1251717183920472065-OLi7brCOdt9hqHfoBM2zl8VrQvSgP8'
-ACCESS_SECRET = 'J0uLQohJhxZxq1iOZjiDxa9cpOg8tgKhP23wuDc6Nlb76'
+API_KEY = ''
+API_SECRET = ''
+ACCESS_TOKEN = ''
+ACCESS_SECRET = ''
 
 
 # Class to process tweets
