@@ -1,4 +1,20 @@
 ---
+- name: change node name in couchdb args
+  replace:
+    path: /etc/vm.args
+    regexp: '-name data@127.0.0.1'
+    replace: '-name data@{{inventory_hostname}}'
+
+- name: Insert kernel max
+  lineinfile:
+    path: /etc/vm.args
+    line: -kernel inet_dist_listen_max 9100
+    
+ - name: Insert kernel min
+    lineinfile:
+    path: /etc/vm.args
+    line: -kernel inet_dist_listen_min 9150
+
 # Run on all nodes
 - name: Set up cluster
   uri:
@@ -13,12 +29,11 @@
     body_format: json
     headers:
       Content-Type: application/json
-    register: cluster_setup
 
 
 # Run on workers
 - name: Connect to worker
-  with_items: "{{ groups['workers'] }}"
+  when : inventory_hostname in groups['workers']
   uri:
     url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
     method: POST
@@ -28,18 +43,17 @@
       username: admin
       password: password
       port: 5984
-      remote_node: "{{ hostvars[item].ansible_host }}"
+      remote_node: "{{ inventory_hostname }}"
       remote_current_user: admin
       remote_current_password: password
       node_count: 4
     body_format: json
     headers:
       Content-Type: application/json
-    register: connect_nodes
 
 # Run on workers
 - name: Connect to cluster, adding node
-  with_items: "{{ groups['workers'] }}"
+  when : inventory_hostname in groups['configserver']
   uri:
     url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
     method: POST
@@ -49,14 +63,14 @@
       username: admin
       password: password
       port: 5984
-      remote_node: "{{ hostvars[item].ansible_host }}"
+      remote_node: "{{ inventory_hostname }}"
       remote_current_user: admin
       remote_current_password: password
       node_count: 4
     body_format: json
     headers:
       Content-Type: application/json
-    register: connect_nodes
+
 # Complete set up
 - name: Join node to cluster
   when: inventory_hostname in groups['configserver']
@@ -75,7 +89,7 @@
   uri:
     url: 'http:///admin:password@172.26.130.46:5984/_cluster_setup'
     method: GET
-  register: verification
+
 # Check clustered nodes configuration
 - name: Check clustered nodes configuration
   when: inventory_hostname in groups['configserver']
