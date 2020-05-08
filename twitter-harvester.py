@@ -4,6 +4,7 @@ import time, functools
 import json, re
 import tweepy
 import nltk
+import logging
 import nltk.data
 from tweepy import OAuthHandler
 from tweepy import Stream
@@ -11,18 +12,13 @@ from tweepy.streaming import StreamListener
 from shpprocess import SHPProcessor
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from couch_setup import CouchDBInstance
 nltk.download('punkt')
 nltk.download('vader_lexicon')
 '''
 
-This script harvests tweets in Australia (and only geo-tagged tweets) using the the twitter APIs referenced on this page:
+This file contains methods to harvest tweets in Australia (and only geo-tagged tweets) using the the twitter APIs referenced on this page:
 https://developer.twitter.com/en/docs/api-reference-index
-
-It takes in three arguments: the query filename, output filename and the desired result size (possibly a few thousand or million) as command line arguments.
-e.g. "python twitter-harvester.py search output.json query-config.txt 50"
-e.g. "python twitter-harvester.py stream output.json"
-Results are stored as a JSON file output.
-The final part of the script starts a collection stream of all the tweets in Australia.
 
 Noted by developer.twitter.com:
 - "Limit your searches to 10 keywords and operators".
@@ -45,6 +41,7 @@ Alternatively, "pip install git+https://github.com/tweepy/tweepy.git".
 AUS_GEOCODE = '-28.071981,134.078631,2137km'
 AUS_BOUNDS = [112.62,-44.12,154.11,-10.84]
 API_TYPE = 0
+DB_URL = 'http://127.0.0.1:5984'
 RESULT_FILE = 1
 QUERY_FILE = 2
 RESULT_SIZE = 3
@@ -63,13 +60,14 @@ ACCESS_SECRET = 'J0uLQohJhxZxq1iOZjiDxa9cpOg8tgKhP23wuDc6Nlb76'
 
 # Class to process tweets
 class TweetProcessor():
-    def __init__(self):
+    def __init__(self, type):
+
         self.shp = SHPProcessor("SA2")
-        self.covid_words = ["covid19", "covid-19", "coronavirus", "ncov", "sars-ncov", "sars-ncov", "corona", "covid"]
+        self.covid_words = self.get_covid_words()
         print("SHP files processed")
         self.sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
         self.analyser = SentimentIntensityAnalyzer()
-
+        self.type=type
 
     # process tweets: add location, add sentiment, covid19 relevance
     def process_status(self, tweet):
@@ -100,20 +98,29 @@ class TweetProcessor():
             tweet_with_location['doc_type'] = "tweet"
 
             #get tweet text (need extra work if this is truncated)
-            if tweet.truncated:
-                body = tweet.extended_tweet["full_text"]
-            else:
-                body = tweet.text
+            if self.type == STREAM_TYPE:
+                if tweet.truncated:
+                    body = tweet.extended_tweet["full_text"]
+                else:
+                    body = tweet.text
+            elif self.type == SEARCH_TYPE:
+                body = tweet.full_text
 
 
             # now look for covid-19 relevance
-            text = list(map(lambda x: x.lower(), body.split()))
+            t_ = list(map(lambda x: x.lower(), body.split()))
+            text = list(map(lambda x: x[1:] if x.startswith('#') else x, t_))
+
             covid_relevant = False
             for x in self.covid_words:
-                if x in text:
+                if x in text or x:
                     covid_relevant = True
+
                     break
             tweet_with_location['covid_relevant'] = covid_relevant
+
+            if tweet_with_location['full_text']:
+                tweet_with_location['text'] = tweet_with_location.pop("full_text")
 
             # add sentiment
             if tweet.lang == "en":
@@ -124,12 +131,12 @@ class TweetProcessor():
                 if len(sentences_remove_urls) > 0:
 
                     best_sentence = max(sentences_remove_urls, key=len)
-                    tweet_scores = self.analyser.polarity_scores(best_sentence)
-
-                    print(best_sentence)
-                    print(tweet_scores)
-
-
+                    try:
+                        tweet_scores = self.analyser.polarity_scores(best_sentence)
+                        tweet_with_location["score"] = tweet_scores["compound"]
+                    except ValueError:
+                        # no score
+                        return tweet_with_location
 
             return tweet_with_location
 
@@ -148,27 +155,31 @@ class TweetProcessor():
                 return False
         return True
 
+    def get_covid_words(self):
+        words = []
+        with open("twitter-harvester/covid_words.txt", "r") as f:
+            for line in f.readlines():
+                words.append(line.strip())
+        return words
+
 
 # Stream API class.
 
 class TwitterListener(StreamListener):
 
-    def __init__(self, output_file):
+    def __init__(self, couchdb):
         super().__init__()
         self.output_file = output_file
-        self.processor = TweetProcessor()
+        self.processor = TweetProcessor(STREAM_TYPE)
+        self.couchdb = couchdb
 
     def on_status(self, status):
         status = self.processor.process_status(status)
         if status == None:
             return True
-        try:
-            with open(self.output_file, 'a') as f:
-                f.write(json.dumps(status))
-                f.write("\n")
-                return True
-        except BaseException as e:
-            print("Error: %s" % str(e))
+
+        # insert into couchdb
+        couchdb.insertTweet(status)
         return True
 
 
@@ -197,10 +208,13 @@ def limit_handled(cursor):
             break
 
 
-def start_search(type="search", output="twitter-harvester/outputSearch.txt", filename="twitter-harvester/query-config.txt", num=50, q=1):
+# TODO: insert couchdb code into arg, complete couchdb integration in stream, discard output txt writing in search
+def start_search(type="search", filename="twitter-harvester/query-config.txt", num=50, q=1):
+    # Change DB URL if necessary
+    couchdb = CouchDBInstance(DB_URL)
 
     if type == SEARCH_TYPE:
-        processor = TweetProcessor()
+        processor = TweetProcessor(SEARCH_TYPE)
 
         with open(filename, 'r') as f:
             query = f.readline().rstrip()
@@ -214,45 +228,41 @@ def start_search(type="search", output="twitter-harvester/outputSearch.txt", fil
 
     if type == STREAM_TYPE:
         print("Starting stream.")
-        twitter_stream = Stream(api.auth, TwitterListener(output_file = "twitter-harvester/outputStream.json"), tweet_mode="extended")
+        twitter_stream = Stream(api.auth, TwitterListener(couchdb=couchdb), tweet_mode="extended")
         twitter_stream.filter(locations = AUS_BOUNDS) # no other filters available
 
 
     elif type == SEARCH_TYPE:
         print("Starting search.")
-        while True:
-            since_id = 0
-            total_tweets_collected = 0
+        max_id = 0
+        total_tweets_collected = 0
 
-            with open(output, 'a') as f:
-                try:
-                    print("Creating request...")
-                    result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', count = 100, since_id = since_id).items()
+        try:
+            print("Creating request...")
+            # result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', count = 100, max = max_id).items()
+            for page in  tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', count = 100, max = max_id, tweet_mode="extended").pages():
+                for tweet in page:
+                    tweet_with_location = processor.process_status(tweet)
 
-                    for tweet in result:
-                        tweet_with_location = processor.process_status(tweet)
+                    if tweet_with_location is None:
+                        continue
 
-                        if tweet_with_location is None:
-                            continue
+                    # insert into couchdb
+                    couchdb.insertTweet(tweet_with_location)
 
-                        print(tweet_with_location)
+                    total_tweets_collected += 1
 
-                        f.write(json.dumps(tweet_with_location))
-                        f.write("\n")
-                        total_tweets_collected += 1
-                        print(total_tweets_collected)
+                    if tweet.id < max_id:
+                        max_id = tweet.id
 
-                        if tweet.id > since_id:
-                            since_id = tweet.id
+                    if total_tweets_collected >= int(RESULT_SIZE):
+                        break
 
-                        if total_tweets_collected >= int(RESULT_SIZE):
-                            break
+        except tweepy.TweepError as e:
+            print("Tweepy error: " + str(e))
 
-                except tweepy.TweepError as e:
-                    print("Tweepy error: " + str(e))
-
-            with open('since_id.txt', 'w') as f:
-                f.write(str(since_id));
+            with open('max_id.txt', 'w') as f:
+                f.write(str(max_id))
 
     print("Done.")
 

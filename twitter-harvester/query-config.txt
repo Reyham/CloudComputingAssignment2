@@ -1,0 +1,1 @@
+covid19 OR coronavirus OR covid OR corona -filter:retweets

@@ -77,6 +77,11 @@ class SHPProcessor():
         matched_boxes.drop('geometry',axis=1)
         return matched_boxes.to_json()
 
+    '''
+        Hacky code to alter JSON fields to make location references consistent across
+        all data
+    '''
+
     def filter_json(self, matched_json):
         try:
             j = json.loads(matched_json)['features'][0]['properties']

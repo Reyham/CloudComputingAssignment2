@@ -2,24 +2,50 @@ import uuid
 import aurin_json
 from cloudant import couchdb, replicator
 from cloudant.design_document import DesignDocument
-
+from cloudant.query import Query, QueryResult
+from cloudant.database import CouchDatabase
+from cloudant.client import CouchDB
+from cloudant.design_document import DesignDocument
+from cloudant.view import View
 '''
     Given a database url, this class setups as a database, and demonstrates
     how to make a replica with cloudant
+
+    CouchDBInstance is the main interface with CouchDB. The class contains
+    methods to insert tweets, setup AURIN data
 '''
+DB_NAME = "db6"
+USERNAME = "admin"
+PASSWORD = "1234"
+PARTITION_KEY = "partition1"
+
 
 class CouchDBInstance():
-    def __init__(self, url):
-        self.create_db(url)
+    def __init__(self, url="http://localhost:5984"):
+        self.create_db(db_url=url, db_name=DB_NAME)
+
+        client = CouchDB(user=USERNAME, auth_token=PASSWORD, url=url, connect=True, auto_renew=True, use_basic_auth=True)
+        self.db = CouchDatabase(client, DB_NAME, fetch_limit=100, partitioned=False)
 
 
-
-    def insert(self, db, json):
-        partition_key = "partition1"
+    def insertAURIN(self, db, json):
+        partition_key = PARTITION_KEY
         document_key = str(uuid.uuid4())
         json['_id'] = ':'.join((partition_key, document_key))
         db.create_document(json)
 
+
+    def insertTweet(self, tweet):
+        # query if tweet exists
+        q = Query(self.db, use_index=:"_design/id", selector={'id': {'$eq': tweet["id"]}})
+        result = q.result[:]
+        if len(result) > 0:
+            return
+        else:
+            partition_key = PARTITION_KEY
+            document_key = str(uuid.uuid4())
+            tweet['_id'] = ':'.join((partition_key, document_key))
+            self.db.create_document(tweet)
 
     def delete_all(self, db):
         for document in db:
@@ -27,37 +53,75 @@ class CouchDBInstance():
 
 
 
+    def loadView(self, filename):
+        map = ""
+        reduce = ""
+        with open(filename) as ddoc:
+            val = ""
+            nnl = False
+            for x in ddoc.readlines():
+                val = val + x.strip()
 
-    def create_db(self, db_url):
-        with couchdb("admin", '1234', url=db_url, connect=True, auto_renew=True) as client:
-            db = client.create_database("db")
-            if not db.exists():
-                print("Error, could not create database")
-                return
-
-            # create json_query indexes
-            db.create_query_index(fields=["sa2_code16", "sa3_code16, doc_type"])
-
-            # create reduce functions to aggregate twitter results (using cURL bc it's easier)
-
-
-            # dummy for replica
-            # db1 = client.create_database("db1")
-
-            # create replicas
-            # replicator.Replicator(client).create_replication(db, db1, continuous=True)
+                if x.strip() == "" and not nnl: # newline
+                    map = val
+                    val = reduce
+                    nnl = True # one map reduce per file
+                if nnl:
+                    reduce = val
+            return (map, reduce)
 
 
-            # test upload
-            x = aurin_json.setup_geo_economy_data()
-            y = aurin_json.setup_geo_trust_data()
-            z = aurin_json.setup_geo_election_data()
-            q = aurin_json.setup_migration_data()
 
-            for geodata in x + y + z + q:
-                self.insert(db, geodata)
+    # create db if not exists
+    def create_db(self, db_name, db_url, name="admin", password="1234"):
+        with couchdb(user=name, passwd=password, url=db_url, connect=True, auto_renew=True) as client:
+            dbs = client.all_dbs()
 
-            print("Completed AURIN data upload to CouchDB")
+            if db_name not in dbs:
+                print("creating db")
+                db = client.create_database(DB_NAME)
+                dd = DesignDocument(db, document_id="cloud_views")
+
+                # create json_query indexes
+                try:
+                    db.create_query_index(design_document_id="sa", fields=["sa2_code16", "sa3_code16", "gcc_code16"])
+                    db.create_query_index(design_document_id="id", fields=["id"])
+                    db.create_query_index(design_document_id="doc_type", fields=["doc_type"])
+
+
+                    # create replicas
+                    # replicator.Replicator(client).create_replication(db, db1, continuous=True)
+
+                    # add aurin_data
+                    print("adding aurin data...")
+                    x = aurin_json.setup_geo_economy_data()
+                    y = aurin_json.setup_geo_trust_data()
+                    z = aurin_json.setup_geo_election_data()
+                    q = aurin_json.setup_migration_data()
+
+                    for geodata in x + y + z + q:
+                        self.insertAURIN(db, geodata)
+
+                    print("Completed AURIN data upload to CouchDB")
+
+                    print("creating views")
+                    # add views
+
+
+
+
+                    return db_name
+                except Error:
+                    print("Error, could not create database")
+                    return
+            else:
+                return db_name
+
+
+
+
+
 
 # populate db with aurin data for each scenario
 i = CouchDBInstance('http://127.0.0.1:5984')
+i.insertTweet({})

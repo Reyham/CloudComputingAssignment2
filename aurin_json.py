@@ -6,7 +6,7 @@ from shpprocess import SHPProcessor
 
 
 '''
-3. are less trusting areas engaging in more panic buying?
+3. are less trusting areas tweeting more about covid19?
 '''
 def setup_geo_trust_data():
     with open("json/trust_data.json") as f:
