@@ -33,7 +33,39 @@
 - name: Install other dependencies
   become: yes
   pip:
-    requirements: /requirements.txt
+    name:
+      - attrs==19.3.0
+      - certifi==2020.4.5.1
+      - chardet==3.0.4
+      - click==7.1.1
+      - click-plugins==1.1.1
+      - cligj==0.5.0
+      - cloudant==2.13.0
+      - Fiona==1.8.13.post1
+      - geopandas==0.7.0
+      - idna==2.9
+      - munch==2.5.0
+      - numpy==1.18.3
+      - pandas==0.24.2
+      - pyproj==2.6.0
+      - python-dateutil==2.8.1
+      - pytz==2019.3
+      - requests==2.23.0
+      - Shapely==1.7.0
+      - six==1.14.0
+      - urllib3==1.25.9
+
+- name: Erlang
+  become: yes
+  apt:
+    name: ['erlang-dev']
+    update_cache: yes
+
+- name: clean
+  become: yes
+  apt:
+    autoclean: yes
+
 
 # Install dependencies on the host
 - name: Install GNUPG certificates
@@ -41,17 +73,21 @@
   apt:
     pkg:
       - apt-transport-https
-      - gnupg ca-certificates
+      - gnupg
+      - ca-certificates
     state: latest
-    update_cache: yes
 
-# Install dependencies on the host
-- name: Enable CouchDB package repository
-  shell: echo "deb https://apache.bintray.com/couchdb-deb bionic main"  | sudo tee -a /etc/apt/sources.list.d/couchdb.list
+- name: Couch
+  shell: 'echo "deb https://apache.bintray.com/couchdb-deb focal main"  | sudo tee -a /etc/apt/sources.list.d/couchdb.list'
+  register: apt
+- debug: msg={{ apt.stdout.split('\n')[:-1] }}
 
 # Install dependencies on the host
 - name: Add key server
-  shell: sudo apt-key adv --keyserver keyserver.ubuntu.com --keyserver-options http-proxy=http://wwwproxy.unimelb.edu.au --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61
+  become: yes
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 8756C4F765C9AC3CB6B85D62379CE192D401AB61
 
 # Install dependencies on the host
 - name: Update
@@ -66,5 +102,9 @@
     name: ['couchdb']
     state: latest
     update_cache: yes
-
-
+# Install dependencies on the host
+- name: Install erl
+  become: yes
+  apt:
+    name: ['erlang-base']
+    update_cache: yes

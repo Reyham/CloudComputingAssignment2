@@ -1,30 +1,62 @@
 ---
 - name: change node name in couchdb args
+  become: yes
   replace:
-    path: /etc/vm.args
-    regexp: '-name data@127.0.0.1'
-    replace: '-name data@{{inventory_hostname}}'
+    path: /opt/couchdb/etc/vm.args
+    regexp: '-name couchdb@127.0.0.1'
+    replace: '-name couchdb@{{inventory_hostname}}'
 
-- name: Insert kernel max
-  lineinfile:
-    path: /etc/vm.args
-    line: -kernel inet_dist_listen_max 9100
+# - name: Insert kernel max
+#  become: yes
+#  lineinfile:
+#    path: /opt/couchdb/etc/vm.args
+#    line: -kernel inet_dist_listen_max 9100
     
- - name: Insert kernel min
-    lineinfile:
-    path: /etc/vm.args
-    line: -kernel inet_dist_listen_min 9150
+# - name: Insert kernel min
+#  become: yes
+#  lineinfile:
+#    path: /opt/couchdb/etc/vm.args
+#    line: -kernel inet_dist_listen_min 9150
+
+- name: Insert port
+  become: yes
+  replace:
+    path: /opt/couchdb/etc/local.ini
+    regexp: ';port = 5984'
+    replace: 'port = 5984'
+- name: Insert bind address
+  become: yes
+  replace:
+    path: /opt/couchdb/etc/local.ini
+    regexp: ';bind_address = 127.0.0.1'
+    replace: 'bind_address = 0.0.0.0'
+
+- name: Insert admin password
+  become: yes
+  replace:
+    path: /opt/couchdb/etc/local.ini
+    regexp: ';admin = mysecretpassword'
+    replace: 'admin = pass'
+
+- name: Start CouchDB
+  become: yes
+  shell: '/etc/init.d/couchdb restart'
+
+
+
+
 
 # Run on all nodes
 - name: Set up cluster
   uri:
-    url:  http://admin:password@172.26.130.46:5984/_cluster_setup
+    url:  http://admin:pass@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: enable_cluster
       bind_address: 0.0.0.0
+      port: 5984
       username: admin
-      password: password
+      password: pass
       node_count: 4
     body_format: json
     headers:
@@ -35,17 +67,17 @@
 - name: Connect to worker
   when : inventory_hostname in groups['workers']
   uri:
-    url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
+    url:  http:///admin:pass@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: enable_cluster
       bind_address: 0.0.0.0
       username: admin
-      password: password
+      password: pass
       port: 5984
       remote_node: "{{ inventory_hostname }}"
       remote_current_user: admin
-      remote_current_password: password
+      remote_current_password: pass
       node_count: 4
     body_format: json
     headers:
@@ -55,17 +87,17 @@
 - name: Connect to cluster, adding node
   when : inventory_hostname in groups['configserver']
   uri:
-    url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
+    url:  http:///admin:pass@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: add_node
       bind_address: 0.0.0.0
       username: admin
-      password: password
+      password: pass
       port: 5984
       remote_node: "{{ inventory_hostname }}"
       remote_current_user: admin
-      remote_current_password: password
+      remote_current_password: pass
       node_count: 4
     body_format: json
     headers:
@@ -75,7 +107,7 @@
 - name: Join node to cluster
   when: inventory_hostname in groups['configserver']
   uri:
-    url:  http:///admin:password@172.26.130.46:5984/_cluster_setup
+    url:  http:///admin:pass@172.26.130.46:5984/_cluster_setup
     method: POST
     body:
       action: finish_cluster
@@ -87,13 +119,13 @@
 - name: Verify install
   when: inventory_hostname in groups['configserver']
   uri:
-    url: 'http:///admin:password@172.26.130.46:5984/_cluster_setup'
+    url: 'http:///admin:pass@172.26.130.46:5984/_cluster_setup'
     method: GET
 
 # Check clustered nodes configuration
 - name: Check clustered nodes configuration
   when: inventory_hostname in groups['configserver']
   uri:
-    url: 'http:///admin:password@172.26.130.46:5984/_membership'
+    url: 'http:///admin:pass@172.26.130.46:5984/_membership'
     method: GET
   register: membership
