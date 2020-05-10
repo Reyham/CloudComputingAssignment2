@@ -1,8 +1,5 @@
 #TODO: Ansible script to setup master and replica nodes
 
-#<from master node, in project directory>
-# add proxies in /etc/environment(internal)
-sudo mv environment /etc/environment
 
 # <for all nodes, including master>
 # get packages (use ansible package module)
@@ -13,8 +10,12 @@ sudo apt-get --assume-yes install python3-venv
 
 
 # <for nodes excluding master (need to clone repo, master has it already)>
-git clone https://s-karki:freefall1378@github.com/Reyham4/CloudComputingAssignment2.git
 cd CloudComputingAssignment2/
+
+#<from master node, in project directory>
+# add proxies in /etc/environment(internal)
+sudo mv environment /etc/environment
+
 
 # <for all nodes, including master>
 python3 -m venv .
