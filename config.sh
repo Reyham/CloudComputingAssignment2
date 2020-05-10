@@ -14,7 +14,7 @@ cd CloudComputingAssignment2/
 
 #<from master node, in project directory>
 # add proxies in /etc/environment(internal)
-sudo mv environment /etc/environment
+sudo cp environment /etc/environment
 
 
 # <for all nodes, including master>
@@ -24,6 +24,9 @@ source bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
+
+# install libspatial index for python geopandas
+sudo apt-get install -y libspatialindex-dev
 
 # enable the Apache CouchDB package repository
 sudo apt-get install -y apt-transport-https gnupg ca-certificates
