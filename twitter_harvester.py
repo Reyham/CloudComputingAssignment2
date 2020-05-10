@@ -6,6 +6,7 @@ import tweepy
 import nltk
 import logging, time
 import nltk.data
+from multiprocessing import Process
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
@@ -79,8 +80,6 @@ class TweetProcessor():
 
             # add SA2/SA3 field
             if tweet.coordinates is not None:
-                print(tweet.coordinates)
-
                 new_coords = {}
                 new_coords["Longitude"] = tweet.coordinates['coordinates'][0]
                 new_coords["Latitude"] = tweet.coordinates['coordinates'][1]
@@ -99,7 +98,6 @@ class TweetProcessor():
             if location_data is None:
                 return None
 
-            print("STREAM")
 
             tweet_with_location = {**tweet_json, **location_data}
             tweet_with_location['doc_type'] = "tweet"
@@ -170,6 +168,7 @@ class TweetProcessor():
         return words
 
 
+
 # Stream API class.
 
 class TwitterListener(StreamListener):
@@ -179,13 +178,18 @@ class TwitterListener(StreamListener):
         self.processor = TweetProcessor(STREAM_TYPE)
         self.couchdb = couchdb
 
-    def on_status(self, status):
+
+    def process_and_insert_tweet(self, status):
         status = self.processor.process_status(status)
         if status == None:
             return True
-
-        # insert into couchdb
         self.couchdb.insertTweet(status)
+
+
+
+    def on_status(self, status):
+        p = Process(target=self.process_and_insert_tweet, args=(status,))
+        p.start()
         return True
 
 
@@ -252,7 +256,6 @@ def start_search(type="search", filename="twitter-harvester/query-config.txt", n
             # result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', count = 100, max = max_id).items()
             for page in  tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', max = max_id, tweet_mode="extended").pages():
                 for tweet in page:
-                    print("SEARCH")
                     tweet_with_location = processor.process_status(tweet)
 
                     if tweet_with_location is None:
