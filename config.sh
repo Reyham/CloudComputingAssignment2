@@ -35,6 +35,6 @@ sudo apt update
 sudo apt install -y couchdb
 
 
-# add couchdb admin (user: admin, password: secret)
-# HOST="http://127.0.0.1:5984"
-# curl -X PUT $HOST/_config/admins/admin -d  '"secret"'
+# add couchdb admin (user: admin, password: 1234)
+HOST="http://127.0.0.1:5984"
+curl -X PUT $HOST/_config/admins/admin -d  '"1234"'
