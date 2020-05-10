@@ -6,17 +6,17 @@
     regexp: '-name couchdb@127.0.0.1'
     replace: '-name couchdb@{{inventory_hostname}}'
 
-# - name: Insert kernel max
-#  become: yes
-#  lineinfile:
-#    path: /opt/couchdb/etc/vm.args
-#    line: -kernel inet_dist_listen_max 9100
+- name: Insert kernel max
+  become: yes
+  lineinfile:
+    path: /opt/couchdb/etc/vm.args
+    line: -kernel inet_dist_listen_max 9100
     
-# - name: Insert kernel min
-#  become: yes
-#  lineinfile:
-#    path: /opt/couchdb/etc/vm.args
-#    line: -kernel inet_dist_listen_min 9150
+- name: Insert kernel min
+  become: yes
+  lineinfile:
+    path: /opt/couchdb/etc/vm.args
+    line: -kernel inet_dist_listen_min 9150
 
 - name: Insert port
   become: yes
@@ -40,7 +40,7 @@
 
 - name: Start CouchDB
   become: yes
-  shell: '/etc/init.d/couchdb restart'
+  shell: '/etc/init.d/couchdb start'
 
 
 
@@ -49,7 +49,7 @@
 # Run on all nodes
 - name: Set up cluster
   uri:
-    url:  http://admin:pass@172.26.130.46:5984/_cluster_setup
+    url:  http://admin:pass@{{inventory_hostname}}:5984/_cluster_setup
     method: POST
     body:
       action: enable_cluster
@@ -67,7 +67,7 @@
 - name: Connect to worker
   when : inventory_hostname in groups['workers']
   uri:
-    url:  http:///admin:pass@172.26.130.46:5984/_cluster_setup
+    url:  http:///admin:pass@{{inventory_hostname}}/_cluster_setup
     method: POST
     body:
       action: enable_cluster

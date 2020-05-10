@@ -2,10 +2,15 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no" 
+    size: 4
+    user: admin
+    password: admin
+    version: '3.0.0'
+    cookie: 'a192aeb9904e6590849337933b000c99'
+    uuid: 'a192aeb9904e6590849337933b001159'
   roles:
     # - role: install-dependencies
-    - role: configure-cluster
-  #  - role: create-database
+    - role: couchdb-docker
   environment:
     HTTP_PROXY: http://wwwproxy.unimelb.edu.au:8000/
     HTTPS_PROXY: http://wwwproxy.unimelb.edu.au:8000/
