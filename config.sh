@@ -15,7 +15,6 @@ cd CloudComputingAssignment2/
 #<from master node, in project directory>
 # add proxies in /etc/environment(internal)
 sudo cp environment /etc/environment
-
 # install libspatial index for python geopandas
 sudo apt-get install -y libspatialindex-dev
 
@@ -32,11 +31,11 @@ pip install -r requirements.txt
 # enable the Apache CouchDB package repository
 sudo apt-get install -y apt-transport-https gnupg ca-certificates
 echo "deb https://apache.bintray.com/couchdb-deb bionic main"  | sudo tee -a /etc/apt/sources.list.d/couchdb.list
-sudo apt-key adv --keyserver keyserver.ubuntu.com:80 --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61
 sudo apt update
 
 #install couched
-sudo apt install -y couchdb
+sudo apt install couchdb
 
 
 # add couchdb admin (user: admin, password: 1234)
