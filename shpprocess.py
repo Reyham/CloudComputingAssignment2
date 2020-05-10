@@ -69,7 +69,6 @@ class SHPProcessor():
             longs.append(corner[0])
 
         polygon = Polygon(zip(longs, lats))
-        print(polygon)
         gdf = geopandas.GeoDataFrame(index=[0], crs=self.sadata.crs, geometry=[polygon])
 
 
@@ -86,7 +85,8 @@ class SHPProcessor():
         try:
             j = json.loads(matched_json)['features'][0]['properties']
         except IndexError:
-            print(matched_json)
+            return None
+
         keep_keys = ["SA3_CODE16", "SA3_NAME16", "SA2_MAIN16",
                     "SA2_NAME16", "STE_NAME16", "GCC_CODE16", "GCC_NAME16"]
         j_ = {k: v for k, v in j.items() if k in keep_keys}

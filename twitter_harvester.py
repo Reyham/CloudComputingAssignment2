@@ -4,7 +4,7 @@ import time, functools
 import json, re
 import tweepy
 import nltk
-import logging
+import logging, time
 import nltk.data
 from tweepy import OAuthHandler
 from tweepy import Stream
@@ -52,10 +52,10 @@ SEARCH_TYPE = 'search'
 
 # API keys and tokens. (Set these keys and tokens to your own if possible to avoid rate limits)
 
-API_KEY = ''
-API_SECRET = ''
-ACCESS_TOKEN = ''
-ACCESS_SECRET = ''
+API_KEY = 'a72kdQ5oX4rHeEuFxocnso92k'
+API_SECRET = 'YeNIi26sjDGSzIkzNcxxW6lXLSXpkJKBRZtmPDeJnxpE9RvsBj'
+ACCESS_TOKEN = '1251717183920472065-OLi7brCOdt9hqHfoBM2zl8VrQvSgP8'
+ACCESS_SECRET = 'J0uLQohJhxZxq1iOZjiDxa9cpOg8tgKhP23wuDc6Nlb76'
 
 
 # Class to process tweets
@@ -71,6 +71,7 @@ class TweetProcessor():
 
     # process tweets: add location, add sentiment, covid19 relevance
     def process_status(self, tweet):
+
         if tweet.coordinates is not None or tweet.place is not None:
             tweet_json = tweet._json
             location_data = {}
@@ -78,14 +79,14 @@ class TweetProcessor():
 
             # add SA2/SA3 field
             if tweet.coordinates is not None:
-                new_coords = {}
                 print(tweet.coordinates)
+
+                new_coords = {}
                 new_coords["Longitude"] = tweet.coordinates['coordinates'][0]
                 new_coords["Latitude"] = tweet.coordinates['coordinates'][1]
                 d = self.shp.match_coordinates(new_coords)
                 location_data = self.shp.filter_json(d)
-            else:
-                if tweet.place.bounding_box.coordinates:
+            elif tweet.place.bounding_box.coordinates is not None:
                     place = tweet.place.bounding_box.coordinates[0]
                     d = self.shp.match_bounding_box({"coordinates":place})
                     dj = json.loads(d)
@@ -93,6 +94,12 @@ class TweetProcessor():
                         return None
                     else:
                         location_data = self.shp.filter_json(d)
+
+            # no valid sa2/sa2 found, discard the tweet
+            if location_data is None:
+                return None
+
+            print("STREAM")
 
             tweet_with_location = {**tweet_json, **location_data}
             tweet_with_location['doc_type'] = "tweet"
@@ -119,7 +126,7 @@ class TweetProcessor():
                     break
             tweet_with_location['covid_relevant'] = covid_relevant
 
-            if tweet_with_location['full_text']:
+            if 'full_text' in tweet_with_location:
                 tweet_with_location['text'] = tweet_with_location.pop("full_text")
 
             # add sentiment
@@ -169,7 +176,6 @@ class TwitterListener(StreamListener):
 
     def __init__(self, couchdb):
         super().__init__()
-        self.output_file = output_file
         self.processor = TweetProcessor(STREAM_TYPE)
         self.couchdb = couchdb
 
@@ -179,7 +185,7 @@ class TwitterListener(StreamListener):
             return True
 
         # insert into couchdb
-        couchdb.insertTweet(status)
+        self.couchdb.insertTweet(status)
         return True
 
 
@@ -208,8 +214,8 @@ def limit_handled(cursor):
             break
 
 
-# TODO: insert couchdb code into arg, complete couchdb integration in stream, discard output txt writing in search
 def start_search(type="search", filename="twitter-harvester/query-config.txt", num=50, q=1):
+
     '''
         Change DBURL if necessary. This WILL take few minutes one first try, since it sets up aurin data
     '''
@@ -235,15 +241,18 @@ def start_search(type="search", filename="twitter-harvester/query-config.txt", n
 
 
     elif type == SEARCH_TYPE:
-        print("Starting search.")
         max_id = 0
+        with open('max_id.txt', 'r') as f:
+            max_id = int(f.read().strip())
+
         total_tweets_collected = 0
 
         try:
-            print("Creating request...")
+            print("Creating standard api search request...")
             # result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', count = 100, max = max_id).items()
-            for page in  tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', count = 100, max = max_id, tweet_mode="extended").pages():
+            for page in  tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', max = max_id, tweet_mode="extended").pages():
                 for tweet in page:
+                    print("SEARCH")
                     tweet_with_location = processor.process_status(tweet)
 
                     if tweet_with_location is None:
@@ -257,15 +266,12 @@ def start_search(type="search", filename="twitter-harvester/query-config.txt", n
                     if tweet.id < max_id:
                         max_id = tweet.id
 
-                    if total_tweets_collected >= int(RESULT_SIZE):
-                        break
+                with open('max_id.txt', 'w') as f:
+                    f.write(str(max_id))
+
 
         except tweepy.TweepError as e:
             print("Tweepy error: " + str(e))
 
-            with open('max_id.txt', 'w') as f:
-                f.write(str(max_id))
 
     print("Done.")
-
-start_search(type="search")

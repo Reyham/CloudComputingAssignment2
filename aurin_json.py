@@ -1,7 +1,6 @@
 import json, csv
 import pandas as pd
 
-
 from shpprocess import SHPProcessor
 
 

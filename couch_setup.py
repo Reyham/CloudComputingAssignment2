@@ -37,7 +37,7 @@ class CouchDBInstance():
 
     def insertTweet(self, tweet):
         # query if tweet exists
-        q = Query(self.db, use_index=:"_design/id", selector={'id': {'$eq': tweet["id"]}})
+        q = Query(self.db, use_index="_design/id", selector={'id': {'$eq': tweet["id"]}})
         result = q.result[:]
         if len(result) > 0:
             return
@@ -84,7 +84,9 @@ class CouchDBInstance():
 
                 # create json_query indexes
                 try:
-                    db.create_query_index(design_document_id="sa", fields=["sa2_code16", "sa3_code16", "gcc_code16"])
+                    db.create_query_index(design_document_id="sa2_code16", fields=["sa2_code16"])
+                    db.create_query_index(design_document_id="sa3_code16", fields = ["sa3_code16"])
+                    db.create_query_index(design_document_id="gcc_code16", fields = ["gcc_code16"])
                     db.create_query_index(design_document_id="id", fields=["id"])
                     db.create_query_index(design_document_id="doc_type", fields=["doc_type"])
 
@@ -102,13 +104,7 @@ class CouchDBInstance():
                     for geodata in x + y + z + q:
                         self.insertAURIN(db, geodata)
 
-                    print("Completed AURIN data upload to CouchDB")
-
-                    print("creating views")
                     # add views
-
-
-
 
                     return db_name
                 except Error:
@@ -123,5 +119,5 @@ class CouchDBInstance():
 
 
 # populate db with aurin data for each scenario
-i = CouchDBInstance('http://127.0.0.1:5984')
-i.insertTweet({})
+# i = CouchDBInstance('http://127.0.0.1:5984')
+# i.insertTweet({})
