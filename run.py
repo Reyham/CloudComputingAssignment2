@@ -1,7 +1,9 @@
 import twitter_harvester
+import twitter_harvester_archived_tweets
 import sys
 from couch_setup import CouchDBInstance
 from multiprocessing import Process
+from tweet_processor import TweetProcessor
 
 '''
     Main entry point to setup couchdb, and start harvesting tweets
@@ -14,19 +16,30 @@ from multiprocessing import Process
 
 def do_search(type):
     print("Starting search: ", type)
-    twitter_harvester.start_search(type=type)
+    if type == "search" or type == "stream":
+        twitter_harvester.start_search(type=type)
 
-def start_processes(type):
+
+
+def start_processes(types):
     procs = []
-    if type == "both":
-        procs.append(Process(target=do_search, args=("stream",)))
-        procs.append(Process(target=do_search, args=("search",)))
-    elif type == "search":
-        procs.append(Process(target=do_search, args=("search",)))
-    elif type == "stream":
-        procs.append(Process(target=do_search, args=("stream",)))
-    else:
-        print("USAGE: python run.py <stream/search/both>")
+    for type in types:
+        if type == "search":
+            procs.append(Process(target=do_search, args=("search",)))
+        elif type == "stream":
+            procs.append(Process(target=do_search, args=("stream",)))
+        elif type == "cloud":
+            print("Starting couchdb tweet repo search")
+            tp = TweetProcessor("search")
+            # harvest the data richard provided
+            cities = ["melbourne", "brisbane", "sydney", "canberra", "adelaide", "hobart", "perth"]
+            # one process for each city
+            for c in cities:
+                procs.append(Process(target=twitter_harvester_archived_tweets.harvest_cloud_city_tweets,
+                            args=(c,tp,)))
+        else:
+            print("USAGE: python run.py <stream> <search> <cloud>")
+            break
 
     for p in procs:
         p.start()
@@ -35,13 +48,12 @@ def start_processes(type):
         p.join()
 
 if __name__ == '__main__':
-    ["search", "stream", "both"]
-    if len(sys.argv) != 2 :
-        print("USAGE: python run.py <stream/search/both>")
+    if len(sys.argv) < 2 or len(sys.argv) > 4:
+        print("USAGE: python run.py <stream> <search> <cloud>")
         sys.exit(1)
 
     db = CouchDBInstance('http://127.0.0.1:5984')
     print("AURIN data loaded into Couchdb")
 
-    type = sys.argv[1]
-    start_processes(type)
+    types = sys.argv[1:]
+    start_processes(types)

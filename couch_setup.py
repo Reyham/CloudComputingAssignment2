@@ -18,10 +18,10 @@ DB_NAME = "db6"
 USERNAME = "admin"
 PASSWORD = "1234"
 PARTITION_KEY = "partition1"
-
+DB_URL = 'http://127.0.0.1:5984'
 
 class CouchDBInstance():
-    def __init__(self, url="http://localhost:5984"):
+    def __init__(self, url=DB_URL):
         self.create_db(db_url=url, db_name=DB_NAME)
 
         client = CouchDB(user=USERNAME, auth_token=PASSWORD, url=url, connect=True, auto_renew=True, use_basic_auth=True)
@@ -37,7 +37,7 @@ class CouchDBInstance():
 
     def insertTweet(self, tweet):
         # query if tweet exists
-        q = Query(self.db, use_index="_design/id", selector={'id': {'$eq': tweet["id"]}})
+        q = Query(self.db, use_index="_design/tweet_id", selector={'tweet_id': {'$eq': tweet["tweet_id"]}})
         result = q.result[:]
         if len(result) > 0:
             return
@@ -87,7 +87,7 @@ class CouchDBInstance():
                     db.create_query_index(design_document_id="sa2_code16", fields=["sa2_code16"])
                     db.create_query_index(design_document_id="sa3_code16", fields = ["sa3_code16"])
                     db.create_query_index(design_document_id="gcc_code16", fields = ["gcc_code16"])
-                    db.create_query_index(design_document_id="id", fields=["id"])
+                    db.create_query_index(design_document_id="tweet_id", fields=["tweet_id"])
                     db.create_query_index(design_document_id="doc_type", fields=["doc_type"])
 
 

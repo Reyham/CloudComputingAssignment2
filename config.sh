@@ -7,7 +7,7 @@ sudo apt-get update
 sudo apt --assume-yes install git
 sudo apt-get --assume-yes install python3-pip
 sudo apt-get --assume-yes install python3-venv
-
+sudo apt install libcurl4-openssl-dev libssl-dev
 
 # <for nodes excluding master (need to clone repo, master has it already)>
 cd CloudComputingAssignment2/
