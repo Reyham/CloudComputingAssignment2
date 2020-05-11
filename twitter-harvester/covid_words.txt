@@ -17,3 +17,4 @@ self isolation
 iso
 pandemic
 quarantine
+testing

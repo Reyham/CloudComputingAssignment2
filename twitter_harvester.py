@@ -115,10 +115,17 @@ class TweetProcessor():
             # now look for covid-19 relevance
             t_ = list(map(lambda x: x.lower(), body.split()))
             text = list(map(lambda x: x[1:] if x.startswith('#') else x, t_))
-
             covid_relevant = False
+            covid_words_set = set(self.covid_words)
+            tweet_set = set(text)
+
             for x in self.covid_words:
-                if x in text:
+                if len(x.split()) > 1:
+                    x_ = set(x.split())
+                    if x_ <= tweet_set:
+                        covid_relevant = True
+                        break
+                elif x in text:
                     covid_relevant = True
                     break
 
