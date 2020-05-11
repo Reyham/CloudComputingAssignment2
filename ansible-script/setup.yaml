@@ -11,6 +11,7 @@
   roles:
     # - role: install-dependencies
     - role: couchdb-docker
+    - role: create-database
   environment:
     HTTP_PROXY: http://wwwproxy.unimelb.edu.au:8000/
     HTTPS_PROXY: http://wwwproxy.unimelb.edu.au:8000/

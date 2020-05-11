@@ -84,6 +84,22 @@
     name: ['docker-compose']
     state: latest
 
+
+- name: add proxy to docker environment
+  become: yes
+  lineinfile:
+    dest: /etc/default/docker
+    regexp: '^\n'
+    insertafter: '^\n'
+    line: "{{ item.line }}" 
+  with_items:
+    - { line: 'http_proxy="http://wwwproxy.unimelb.edu.au:8000"' }
+    - { line: 'https_proxy="http://wwwproxy.unimelb.edu.au:8000"' } 
+    - { line: 'ftp_proxy="http://wwwproxy.unimelb.edu.au:8000"' }
+    - { line: 'no_proxy=localhost,127.0.0.1,127.0.1.1,ubuntu' }
+
+
+
 - name: Create Docker environment directory
   become: yes
   file:
@@ -109,6 +125,16 @@
   template:
     src: config.json
     dest: /root/.docker
+
+
+- name: Restart
+  become: yes
+  shell: 'systemctl daemon-reload'
+
+- name: Restart
+  become: yes
+  shell: 'systemctl restart docker'
+
 
 - name: Install Jq
   become: yes
