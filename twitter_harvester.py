@@ -118,16 +118,11 @@ class TweetProcessor():
 
             covid_relevant = False
             for x in self.covid_words:
-                if x in text or x:
+                if x in text:
                     covid_relevant = True
-
                     break
+                    
             tweet_with_location['covid_relevant'] = covid_relevant
-
-            if 'full_text' in tweet_with_location:
-                tweet_with_location['text'] = tweet_with_location.pop("full_text")
-
-            # add sentiment
             if tweet.lang == "en":
                  # punkt sentence detector
                 sentences = self.sent_detector.tokenize(body.strip())
@@ -184,7 +179,6 @@ class TwitterListener(StreamListener):
         if status == None:
             return True
         self.couchdb.insertTweet(status)
-
 
 
     def on_status(self, status):
