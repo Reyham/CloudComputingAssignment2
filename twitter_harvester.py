@@ -121,7 +121,7 @@ class TweetProcessor():
                 if x in text:
                     covid_relevant = True
                     break
-                    
+
             tweet_with_location['covid_relevant'] = covid_relevant
             if tweet.lang == "en":
                  # punkt sentence detector
@@ -245,6 +245,7 @@ def start_search(type="search", filename="twitter-harvester/query-config.txt", n
 
         total_tweets_collected = 0
 
+        print("searching with standard API")
         try:
             print("Creating standard api search request...")
             # result = tweepy.Cursor(api.search, q = query, geocode = AUS_GEOCODE, result_type = 'recent', count = 100, max = max_id).items()

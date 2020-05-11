@@ -35,7 +35,8 @@ def start_processes(type):
         p.join()
 
 if __name__ == '__main__':
-    if len(sys.argv) == 0:
+    ["search", "stream", "both"]
+    if len(sys.argv) != 2 :
         print("USAGE: python run.py <stream/search/both>")
         sys.exit(1)
 
