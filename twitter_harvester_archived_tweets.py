@@ -3,7 +3,7 @@ from io import BytesIO
 from urllib.parse import urlencode
 from tweet_processor import TweetProcessor
 from couch_setup import CouchDBInstance
-
+import time
 
 def retrieve_tweets(city, limit, skip):
     buffer = BytesIO()
@@ -14,7 +14,7 @@ def retrieve_tweets(city, limit, skip):
 
     start_key = [city, start_year, start_month, start_day]
     end_key = [city, end_year, end_month, end_day]
-
+    retries = 5
     vals = {'start_key' : start_key,
             'end_key':end_key,
             'reduce':"false",
@@ -34,20 +34,28 @@ def retrieve_tweets(city, limit, skip):
     c.setopt(c.HTTPGET, 1)
     c.setopt(c.USERPWD,"readonly:ween7ighai9gahR6")
     c.setopt(c.WRITEDATA, buffer)
-    c.perform()
-    c.close()
-
-    return json.loads(buffer.getvalue().decode('utf-8'))
-
+    success = False
+    while retries > 0:
+        try:
+            c.perform()
+            success = True
+        except pycurl.error:
+            retries -= 1
+            time.sleep(5)
+            print(pycurl.error)
+    if success:
+        return json.loads(buffer.getvalue().decode('utf-8'))
+    else:
+        return None
 
 
 def harvest_cloud_city_tweets(city, tp):
-    limit = 500
+    limit = 300
     skip_count = 0
     couchdb = CouchDBInstance()
-
+    offset = 0
     # check if offset exists
-    with open("./cloud_skip/" + city + "_offset.txt", "w+") as f:
+    with open("./cloud_skip/" + city + "_offset.txt", "r+") as f:
         o = f.read().strip()
         if o != "":
             try:
@@ -57,7 +65,12 @@ def harvest_cloud_city_tweets(city, tp):
         f.close()
 
     print('harvesting tweets for city: ', city)
+
     res = retrieve_tweets(city, limit, skip_count)
+    # print(res.keys())
+    if res == None:
+        print("Cannot retrieve tweets for ", city)
+        return None
     while len(res['rows']) != 0:
         print('new_iter')
         # process and insert tweets into couchdb
@@ -67,7 +80,8 @@ def harvest_cloud_city_tweets(city, tp):
                 continue
             couchdb.insertTweet(processed_tweet)
 
-        skip_count += limit
+        offset += 1
+        skip_count = limit * offset
         with open("./cloud_skip/" + city + "_offset.txt", "w+") as f:
             f.write(str(skip_count))
             f.close()
