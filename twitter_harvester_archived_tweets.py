@@ -5,12 +5,11 @@ from tweet_processor import TweetProcessor
 from couch_setup import CouchDBInstance
 import time
 
-def retrieve_tweets(city, limit, skip):
+
+
+def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_month, end_day):
     buffer = BytesIO()
 
-    start_year, start_month, start_day = 2014, 1, 1
-    now = datetime.datetime.now()
-    end_year, end_month, end_day = now.year, now.month, now.day
 
     start_key = [city, start_year, start_month, start_day]
     end_key = [city, end_year, end_month, end_day]
@@ -18,10 +17,7 @@ def retrieve_tweets(city, limit, skip):
     vals = {'start_key' : start_key,
             'end_key':end_key,
             'reduce':"false",
-            'include_docs':"true",
-            'limit': limit}
-    if skip != 0:
-        vals['skip'] = skip
+            'include_docs':"true"}
 
     params_ = urlencode(vals)
     # weirdly, urllib uses single quotes to encase strings, but couch needs double quotes. took me forever to debug :(
@@ -50,40 +46,33 @@ def retrieve_tweets(city, limit, skip):
 
 
 def harvest_cloud_city_tweets(city, tp):
-    limit = 300
-    skip_count = 0
+    limit = 50
     couchdb = CouchDBInstance()
-    offset = 0
-    # check if offset exists
-    with open("./cloud_skip/" + city + "_offset.txt", "r+") as f:
-        o = f.read().strip()
-        if o != "":
-            try:
-                skip_count = int(o)
-            except ValueError:
-                skip_count = 0
-        f.close()
+
+    now = datetime.datetime.now()
+    past = now - datetime.timedelta(days=1)
 
     print('harvesting tweets for city: ', city)
 
-    res = retrieve_tweets(city, limit, skip_count)
-    # print(res.keys())
+    res = retrieve_tweets(city, past.year, past.month, past.day, now.year, now.month, now.day)
     if res == None:
         print("Cannot retrieve tweets for ", city)
         return None
-    while len(res['rows']) != 0:
-        print('new_iter')
+
+    while (now.year != 2020 or now.month != 1 or now.day != 1):
         # process and insert tweets into couchdb
+        # pagination is way too slow so we have to make do with keys
+        if res is None or 'rows' not in res:
+            now = past
+            past = now - datetime.timedelta(days=1)
+            continue
+
         for tweet in res['rows']:
             processed_tweet = tp.process_archived_status(tweet)
-            if processed_tweet is None:
-                continue
-            couchdb.insertTweet(processed_tweet)
+            if processed_tweet is not None:
+                couchdb.insertTweet(processed_tweet)
 
-        offset += 1
-        skip_count = limit * offset
-        with open("./cloud_skip/" + city + "_offset.txt", "w+") as f:
-            f.write(str(skip_count))
-            f.close()
+        now = past
+        past = now - datetime.timedelta(days=1)
 
-        res = retrieve_tweets(city, limit, skip_count) # paginate
+        res = retrieve_tweets(city, past.year, past.month, past.day, now.year, now.month, now.day)
