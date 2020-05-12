@@ -21,7 +21,6 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
             'limit': 100}
 
     if id is not None:
-        print("idd")
         vals['start_key_doc_id'] = id
 
     params_ = urlencode(vals)
@@ -31,7 +30,6 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
     url = "http://45.113.232.90/couchdbro/twitter/_design/twitter/_view/summary"
     c = pycurl.Curl()
 
-    print(params)
 
     c.setopt(c.URL, url+"?"+params)
     c.setopt(c.HTTPGET, 1)
@@ -83,7 +81,6 @@ def harvest_cloud_city_tweets(city, tp):
     max_id = read_id(city)
     if max_id is None:
         max_id = 0
-    print("start", max_id)
 
     print('harvesting tweets for city: ', city)
 
@@ -114,7 +111,6 @@ def harvest_cloud_city_tweets(city, tp):
                 couchdb.insertTweet(processed_tweet)
 
         # fetch new results, for the same day and city
-        print("NEW_TWEETS", max_id)
         res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
         write_id(city, max_id)
 
