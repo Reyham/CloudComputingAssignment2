@@ -14,7 +14,7 @@ from cloudant.view import View
     CouchDBInstance is the main interface with CouchDB. The class contains
     methods to insert tweets, setup AURIN data
 '''
-DB_NAME = "db6"
+DB_NAME = "db2"
 USERNAME = "admin"
 PASSWORD = "1234"
 PARTITION_KEY = "partition1"
@@ -40,8 +40,10 @@ class CouchDBInstance():
         q = Query(self.db, use_index="_design/tweet_id", selector={'tweet_id': {'$eq': tweet["tweet_id"]}})
         result = q.result[:]
         if len(result) > 0:
+            print("nope")
             return
         else:
+            print("inserting!")
             partition_key = PARTITION_KEY
             document_key = str(uuid.uuid4())
             tweet['_id'] = ':'.join((partition_key, document_key))

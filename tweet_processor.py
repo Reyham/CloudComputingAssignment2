@@ -63,7 +63,14 @@ class TweetProcessor():
                 score = self.calculate_sentiment(body)
                 if score is not None:
                     tweet_with_location['score'] = score
-            tweet_with_location['tweet_id'] = tweet_with_location.pop('_id')
+            try:
+                id = tweet_with_location.pop('_id')
+                tweet_with_location.pop('id')
+                tweet_with_location['tweet_id'] = int(id)
+                tweet_with_location['tweet_id_str'] = tweet_with_location.pop('id_str')
+                tweet_with_location['doc_source'] = "couchdb"
+            except ValueError:
+                return None
             return tweet_with_location
         return None
 
