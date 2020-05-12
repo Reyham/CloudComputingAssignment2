@@ -55,7 +55,7 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
 
 def read_id(city):
     try:
-        with open("./cloud_skip/" + city + "_offset", "r+") as f:
+        with open("./cloud_skip/" + city + "_offset", "a+") as f:
             x = int(f.read().strip())
             return x
     except (IOError, ValueError) as e:
