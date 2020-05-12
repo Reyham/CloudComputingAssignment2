@@ -90,7 +90,6 @@ class CouchDBInstance():
                     db.create_query_index(design_document_id="tweet_id", fields=["tweet_id"])
                     db.create_query_index(design_document_id="doc_type", fields=["doc_type"])
 
-
                     # create replicas
                     # replicator.Replicator(client).create_replication(db, db1, continuous=True)
 

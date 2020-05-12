@@ -6,6 +6,7 @@ sars-ncov
 sars-ncov
 corona
 covid
+covidsafe
 social distancing
 brendan murphy
 ruby princess
