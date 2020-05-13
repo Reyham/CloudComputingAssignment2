@@ -1,4 +1,4 @@
-import pycurl, datetime, json, sys
+import pycurl, datetime, json, sys, os
 from io import BytesIO
 from urllib.parse import urlencode
 from tweet_processor import TweetProcessor
@@ -55,7 +55,7 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
 
 def read_id(city):
     try:
-        with open("./cloud_skip/" + city + "_offset", "a+") as f:
+        with open("./cloud_skip/" + city + "_offset", "r") as f:
             x = int(f.read().strip())
             return x
     except (IOError, ValueError) as e:
@@ -71,6 +71,9 @@ def write_id(city, id):
         return None
 
 def harvest_cloud_city_tweets(city, tp):
+    if not os.path.exists('./cloud_skip/' + city + "_offset"):
+        with open('./cloud_skip/' + city + "_offset", 'w'): pass
+
     limit = 50
     couchdb = CouchDBInstance()
 

@@ -12,6 +12,7 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
 from couch_setup import CouchDBInstance
+from urllib3.exceptions import ProtocolError
 
 '''
 
@@ -112,8 +113,11 @@ def start_search(type="search", filename="twitter-harvester/query-config.txt", n
     if type == STREAM_TYPE:
         print("Starting stream.")
         twitter_stream = Stream(api.auth, TwitterListener(couchdb=couchdb), tweet_mode="extended")
-        twitter_stream.filter(locations = AUS_BOUNDS) # no other filters available
-
+        while True:
+            try:
+                twitter_stream.filter(locations = AUS_BOUNDS) # no other filters available
+            except ProtocolError:
+                continue
 
     elif type == SEARCH_TYPE:
         max_id = 0
