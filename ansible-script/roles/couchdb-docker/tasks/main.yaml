@@ -1,0 +1,122 @@
+---
+# Docker pull
+- name: pull an image
+  become: yes
+  docker_image:
+    name: ibmcom/couchdb3:{{ version }}
+    source: pull
+
+# REMOVES EXISTING CONTAINERS
+- name: Check if containers running
+  become: yes 
+  docker_container_info:
+    name: "couchdb1{{inventory_hostname}}"
+  register: container_exists
+
+- name: If container running, stop
+  become: yes
+  when: container_exists.exists
+  docker_container:
+    name: "couchdb1{{inventory_hostname}}"
+    state: stopped
+
+
+- name: Remove current docker containers
+  become: yes 
+  when: container_exists.exists
+  docker_prune:
+    containers: yes
+    images: yes
+
+# CREATES DOCKER CONTAINER
+- name: Create docker container with volume
+  become: yes
+  docker_container:
+    name: couchdb1{{inventory_hostname}}
+    env:
+      COUCHDB_USER: "{{ user }}"
+      COUCHDB_PASSWORD: "{{ password }}"
+      COUCHDB_SECRET: "{{ cookie }}"
+      ERL_FLAGS: '-setcookie \"{{cookie}}\" -name \"couchdb@{{ inventory_hostname}}\"'
+    ports:
+      - "5984:5984"
+      - "4369:4369"
+      - "9100-9200:9100-9200"
+    state: started
+    image: ibmcom/couchdb3:{{ version}}
+    volumes:
+      - couch-volume:/database
+
+# CLUSTER SET UP
+- name: Set up cluster
+  when : inventory_hostname in groups['workers']
+  uri:
+    url:  http://{{user}}:{{password}}@172.26.133.84:5984/_cluster_setup
+    method: POST
+    body:
+      action: "enable_cluster"
+      bind_address: "0.0.0.0"
+      username: "{{ user}}"
+      password: "{{ password }}"
+      port: 5984
+      node_count: 4
+      remote_node: "{{ inventory_hostname }}"
+      remote_current_user: "{{ user}}"
+      remote_current_password: "{{ password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    status_code: 201
+    headers:
+      Content-Type: application/json
+
+
+- name: Connect to cluster, adding node
+  when : inventory_hostname in groups['workers']
+  uri:
+    url:  http://{{user}}:{{password}}@172.26.133.84:5984/_cluster_setup
+    method: POST
+    body:
+      action: "add_node"
+      host: "{{inventory_hostname}}"
+      port: 5984
+      username: "{{ user}}"
+      password: "{{ password }}"
+    body_format: json
+    force_basic_auth: yes
+    validate_certs: no
+    status_code: 201
+    headers:
+      Content-Type: application/json
+
+- name: Empty get to ensure all ok
+  uri:
+    url: http://{{user}}:{{password}}@172.26.133.84:5984/
+
+
+
+# Complete set up
+- name: Finish cluster
+  when: inventory_hostname in groups['configserver']
+  uri:
+    url:  http://{{user}}:{{password}}@172.26.133.84:5984/_cluster_setup
+    method: POST
+    body:
+      action: "finish_cluster"
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    status_code: 201
+  register: finished_cluster
+
+# Check clustered nodes configuration
+- name: Check clustered nodes configuration
+  when: inventory_hostname in groups['configserver']
+  uri:
+    url: 'http://{{ user}}:{{ password}}@172.26.133.84:5984/_membership'
+    force_basic_auth: yes
+    validate_certs: no
+    status_code: 200
+  register: membership
