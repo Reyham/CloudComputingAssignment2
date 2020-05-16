@@ -11,7 +11,7 @@
     - role: openstack-instance
 
 - name: SSH Details
-  hosts: Testgroup
+  hosts: openstack.public_v4
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: ubuntu
@@ -21,4 +21,4 @@
     - role: openstack-proxy
     - role: openstack-dependencies
     # Install NodeJS
-    # - geerlingguy.nodejs
+    # - geerlingguy.nodejs 
