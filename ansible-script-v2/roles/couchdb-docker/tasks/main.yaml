@@ -49,9 +49,9 @@
 
 # CLUSTER SET UP
 - name: Set up cluster
-  when : inventory_hostname != openstack.public_v4[0]
+  when : inventory_hostname != Testgroup[0]
   uri:
-    url:  http://{{user}}:{{password}}@{{openstack.public_v4[0]}}:5984/_cluster_setup
+    url:  http://{{user}}:{{password}}@{{Testgroup[0]}}:5984/_cluster_setup
     method: POST
     body:
       action: "enable_cluster"
@@ -72,9 +72,9 @@
 
 
 - name: Connect to cluster, adding node
-  when : inventory_hostname != openstack.public_v4[0]
+  when : inventory_hostname != Testgroup[0]
   uri:
-    url:  http://{{user}}:{{password}}@{{openstack.public_v4[0]}}:5984/_cluster_setup
+    url:  http://{{user}}:{{password}}@{{Testgroup[0]}}:5984/_cluster_setup
     method: POST
     body:
       action: "add_node"
@@ -91,15 +91,15 @@
 
 - name: Empty get to ensure all ok
   uri:
-    url: http://{{user}}:{{password}}@{{openstack.public_v4[0]}}:5984/
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/
 
 
 
 # Complete set up
 - name: Finish cluster
-  when: inventory_hostname == openstack.public_v4[0]
+  when: inventory_hostname == Testgroup[0]
   uri:
-    url:  http://{{user}}:{{password}}@{{openstack.public_v4[0]}}:5984/_cluster_setup
+    url:  http://{{user}}:{{password}}@{{inventory_hostname}}:5984/_cluster_setup
     method: POST
     body:
       action: "finish_cluster"
@@ -113,9 +113,9 @@
 
 # Check clustered nodes configuration
 - name: Check clustered nodes configuration
-  when: inventory_hostname == openstack.public_v4[0]
+  when: inventory_hostname == Testgroup[0]
   uri:
-    url: 'http://{{ user}}:{{ password}}@{{openstack.public_v4[0]}}:5984/_membership'
+    url: 'http://{{ user}}:{{ password}}@{{inventory_hostname}}:5984/_membership'
     force_basic_auth: yes
     validate_certs: no
     status_code: 200
