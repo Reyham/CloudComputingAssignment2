@@ -89,7 +89,7 @@ def harvest_cloud_city_tweets(city, tp):
 	print('harvesting tweets for city: ', city)
 
 	res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
-	print(res)
+	# print(res)
 	if res == None or 'rows' not in res:
 		print("Cannot retrieve tweets for ", city)
 		return None
