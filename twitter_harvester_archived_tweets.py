@@ -97,7 +97,10 @@ def harvest_cloud_city_tweets(city, tp):
 	ids = [int(x['doc']['_id']) for x in res['rows']]
 	max_id = min(ids)
 	res_ = [x for x in res['rows'] if int(x['doc']['_id']) != max_id]
-	print(max_id, "MINID")
+	# print(max_id, "MINID")
+
+	seen = set()
+	seen.add(max_id)
 
 	# process and insert tweets into couchdb
 	# pagination is way too slow so we have to make do with keys
@@ -108,16 +111,22 @@ def harvest_cloud_city_tweets(city, tp):
 			intid = int(tweet['doc']['_id'])
 			if intid != max_id:
 				processed_tweet = tp.process_archived_status(tweet)
-				#if processed_tweet is not None:
-					# couchdb.insertTweet(processed_tweet)
-		max_id = intid
-		print(max_id, "NEWMAX")
+				if processed_tweet is not None:
+					couchdb.insertTweet(processed_tweet)
+		# print(max_id, "NEWMAX")
 		res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
 		write_id(city, max_id)
 
-		ids = [int(x['doc']['_id']) for x in res['rows']]
-		max_id = min(ids)
 		res_ = [x for x in res['rows'] if int(x['doc']['_id']) != max_id]
+		ids = [int(x['doc']['_id']) for x in res_]
+		max_id = sorted(set(ids))[0] # min id
+		if max_id in seen:
+			delta = datetime.timedelta(days=1)
+			now = now - delta
+			# print("new time!")
+			seen = set()
+		else:
+			seen.add(max_id)
 
 
 # harvest_cloud_city_tweets("hobart", TweetProcessor("search"))
