@@ -5,7 +5,11 @@ from shpprocess import SHPProcessor
 
 
 '''
-3. are less trusting areas tweeting more about covid19?
+Q3. are less trusting areas tweeting more about covid19?
+
+tweet[is_covid_relevant] --> Tweet is covid relevant (count for each area)
+each stat area has "trust_1_3_pc_synth" --> percentage of people with low trust
+
 '''
 def setup_geo_trust_data():
     with open("json/trust_data.json") as f:
@@ -42,7 +46,15 @@ def setup_geo_trust_data():
         return trust_data
 
 '''
-2. does positive/negative tweet sentiment correlate with 2019 election results?
+Q2. does positive/negative tweet sentiment correlate with 2019 election results (coalition support)?
+
+tweet[score] --> individual tweet sentiment (take an average for each area)
+
+tpp_liberal_national_coalition_votes --> # number of liberal party votes
+tpp_australian_labor_party_votes --> # number of labor party votes
+
+coalition support = (liberal vote / liberal vote + labor vote)
+
 '''
 def setup_geo_election_data():
     with open("json/election_data.json") as f:
@@ -120,7 +132,11 @@ def setup_geo_election_data():
 
 
 '''
-1. are people tweeting about covid19 living in more economically unequal areas?
+Q1. are people tweeting about covid19 living in more economically unequal areas?
+
+is_covid_relevant --> tweet is covid relevant (count all for each area)
+"gini_coefficient_no" --> income inequality for each area
+
 '''
 def setup_geo_economy_data():
     with open("json/income_data.json") as f:
@@ -169,8 +185,12 @@ def setup_geo_economy_data():
 
         '''
 '''
-4: do the frequencies of tweets in different languages
+Q4: do the frequencies of tweets in different languages
 show a relationship with the migration rate of their neighbourhood
+
+tweet[lang] --> language of each tweet (aggregate for each area)
+total_migration_rate --> percentage of migrants in each area
+
 '''
 def setup_migration_data():
     with open("json/migration_data.json") as f:
