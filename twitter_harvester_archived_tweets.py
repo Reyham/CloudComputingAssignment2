@@ -11,14 +11,14 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
     buffer = BytesIO()
 
 
-    start_key = [city, start_year, start_month, start_day]
-    end_key = [city, end_year, end_month, end_day]
+    end_key = [city, start_year, start_month, start_day]
+    start_key = [city, end_year, end_month, end_day]
     retries = 100
     vals = {'start_key' : start_key,
-            'end_key':end_key,
             'reduce':"false",
             'include_docs':"true",
-            'limit': 100}
+            'descending':"true",
+            'limit': 5}
 
     if id is not None:
         vals['start_key_doc_id'] = id
@@ -29,7 +29,7 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
     params = params_.replace('%27', '%22')
     url = "http://45.113.232.90/couchdbro/twitter/_design/twitter/_view/summary"
     c = pycurl.Curl()
-
+    # print(params)
 
     c.setopt(c.URL, url+"?"+params)
     c.setopt(c.HTTPGET, 1)
@@ -37,6 +37,7 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
     c.setopt(c.WRITEDATA, buffer)
     c.perform()
     c.close()
+
     return json.loads(buffer.getvalue().decode('utf-8'))
     '''
     while retries > 0:
@@ -82,35 +83,42 @@ def harvest_cloud_city_tweets(city, tp):
     # past = now - datetime.timedelta(days=1)
 
     max_id = read_id(city)
-    if max_id is None:
-        max_id = 0
+    #if max_id is None:
+    #    max_id = 9223372036854775807
 
     print('harvesting tweets for city: ', city)
 
     res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
-
+    print(res)
     if res == None or 'rows' not in res:
-        print("Cannot retrieve tweets for ", city)
+        print("Cannot retrieve tweets for ", city)    
         return None
-
+ 
+ 
+    ids = [int(x['doc']['_id']) for x in res['rows']]
+    max_id = min(ids)
+    res_ = [x for x in res['rows'] if int(x['doc']['_id']) != max_id]
+   
     # process and insert tweets into couchdb
     # pagination is way too slow so we have to make do with keys
     while ('rows' in res and len(res['rows']) > 1):
-        res_ = list(filter(lambda x: x['doc']['_id'] != max_id, res['rows']))
-        ids = [int(x['doc']['_id']) for x in res_]
-        max_id = max(ids)
-        print(ids)
-        print()
+        #res_ = list(filter(lambda x: int(x['doc']['_id']) != max_id, res['rows']))
+
         for tweet in res_:
-            if int(tweet['doc']['_id']) != max_id:
+            print(tweet['doc']['_id'], "RES")
+            intid = int(tweet['doc']['_id'])
+            if intid != max_id:
                 processed_tweet = tp.process_archived_status(tweet)
                 if processed_tweet is not None:
                     couchdb.insertTweet(processed_tweet)
-
+        max_id = intid
+        print(max_id, "NEWMAX", "\n")
         res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
         write_id(city, max_id)
-
-
+ 
+        ids = [int(x['doc']['_id']) for x in res['rows']]
+        max_id = min(ids)
+        res_ = [x for x in res['rows'] if int(x['doc']['_id']) != max_id]
         '''
         # get the largest id not equal to max_id
         ids = []
