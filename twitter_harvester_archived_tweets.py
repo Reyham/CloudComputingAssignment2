@@ -65,7 +65,7 @@ def read_id(city):
 
 def write_id(city, id):
     try:
-        with open("./cloud_skip/" + city + "_offset", "w+") as f:
+        with open("./cloud_skip/" + city + "_offset", "w") as f:
             f.write(str(id))
     except IOError:
         return None
@@ -106,7 +106,7 @@ def harvest_cloud_city_tweets(city, tp):
         res_ = list(filter(lambda x: x['doc']['_id'] != max_id, res['rows']))
 
         for tweet in res_:
-            if tweet['doc']['id'] == str(max_id):
+            if tweet['doc']['_id'] == str(max_id):
                 print("ERROR BAD FUNC")
             # move out to process ALL TWEETS EXCEPT THE MAX ID TWEET
             processed_tweet = tp.process_archived_status(tweet)

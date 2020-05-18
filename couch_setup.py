@@ -14,7 +14,8 @@ from cloudant.view import View
     CouchDBInstance is the main interface with CouchDB. The class contains
     methods to insert tweets, setup AURIN data
 '''
-DB_NAME = "db6"
+DB_NAME = database
+# DB_NAME = "db6"
 USERNAME = "admin"
 PASSWORD = "1234"
 PARTITION_KEY = "partition1"
@@ -73,6 +74,7 @@ class CouchDBInstance():
 
 
     # create db if not exists
+    # connect to name database locally, <admin, admin>
     def create_db(self, db_name, db_url, name="admin", password="1234"):
         with couchdb(user=name, passwd=password, url=db_url, connect=True, auto_renew=True) as client:
             dbs = client.all_dbs()

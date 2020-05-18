@@ -11,7 +11,7 @@ from tweet_processor import TweetProcessor
 
     Ex: python run.py stream
         python run.py search
-        python run.py both
+        python run.py cloud
 '''
 
 def do_search(type):
