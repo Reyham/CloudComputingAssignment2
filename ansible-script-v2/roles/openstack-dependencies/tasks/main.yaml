@@ -1,0 +1,65 @@
+# Installation of dependencies
+
+- name: Install Dependencies
+  become: yes
+  apt:
+    name: ['apt-transport-https','gnupg','ca-certificates']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Curl the repo's of nodejs
+  become: yes
+  shell: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+
+- name: Install dependencies
+  tags: always
+  become: yes
+  apt:
+    name: ['build-essential',
+     'python3-dev',
+     'python3-pip',
+     'python3-setuptools',
+     'python3-venv',
+     'git-all',
+     'software-properties-common',
+     'unzip',
+     'vim',
+     'curl',
+     'nodejs']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 
+
+- name: Install Python Dependencies
+  become: yes
+  pip:
+    name: ['attrs',
+    'certifi',
+    'chardet',
+    'click',
+    'click-plugins',
+    'cligj',
+    'cloudant',
+    'Fiona',
+    'geopandas',
+    'idna',
+    'munch',
+    'numpy',
+    'pandas',
+    'pyproj',
+    'python-dateutil',
+    'pytz',
+    'requests',
+    'Shapely',
+    'six',
+    'urllib3']
+    state: latest

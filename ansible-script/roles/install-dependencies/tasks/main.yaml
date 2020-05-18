@@ -1,0 +1,155 @@
+---
+- name: Environment setting up
+  become: yes
+  template:
+    src: environment
+    dest: /etc
+# Install dependencies on the host
+- name: Install git
+  become: yes
+  apt:
+    name: ['git']
+    state: latest
+
+# Install dependencies on the host
+- name: Install python3 pip
+  become: yes
+  apt:
+    name: ['python3-pip']
+    state: latest
+    update_cache: yes
+
+# Install dependencies on the host
+- name: Install python3 venv
+  become: yes
+  apt:
+    name: ['python3-venv']
+    state: latest  
+    update_cache: yes
+
+# Install dependencies on the host
+- name: Update pip
+  become: yes
+  pip:
+    name: ['pip']
+    state: latest
+
+
+# INSTALL
+- name: Uninstall old versions of docker
+  tags: 'docker'
+  become: yes
+  apt:
+    name: ['docker', 'docker-engine', 'docker.io']
+    state: absent
+
+- name: Install dependencies
+  tags: 'docker'
+  become: yes
+  apt:
+    name: ['apt-transport-https', 'ca-certificates', 'curl', 'python-setuptools', 'software-properties-common']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Add Docker apt repository key
+  tags: 'docker'
+  become: yes
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker apt repository and update apt cache
+  tags: 'docker'
+  become: yes
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
+    mode: '644'
+    update_cache: yes
+    state: present
+
+- name: Install docker
+  tags: 'docker'
+  become: yes
+  apt:
+    name: ['docker-ce']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Install docker-compose
+  tags: 'docker'
+  become: yes
+  pip:
+    name: ['docker-compose']
+    state: latest
+
+
+- name: add proxy to docker environment
+  become: yes
+  lineinfile:
+    dest: /etc/default/docker
+    regexp: '^\n'
+    insertafter: '^\n'
+    line: "{{ item.line }}" 
+  with_items:
+    - { line: 'http_proxy="http://wwwproxy.unimelb.edu.au:8000"' }
+    - { line: 'https_proxy="http://wwwproxy.unimelb.edu.au:8000"' } 
+    - { line: 'ftp_proxy="http://wwwproxy.unimelb.edu.au:8000"' }
+    - { line: 'no_proxy=localhost,127.0.0.1,127.0.1.1,ubuntu' }
+
+
+
+- name: Create Docker environment directory
+  become: yes
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+
+- name: Configure http proxy
+  become: yes
+  template:
+    src: http-proxy.conf
+    dest: /etc/systemd/system/docker.service.d
+
+- name: Configure https proxy
+  become: yes
+  template:
+    src: https-proxy.conf
+    dest: /etc/systemd/system/docker.service.d
+
+
+
+- name: Set Docker environment
+  become: yes
+  template:
+    src: config.json
+    dest: /root/.docker
+
+
+- name: Restart
+  become: yes
+  shell: 'systemctl daemon-reload'
+
+- name: Restart
+  become: yes
+  shell: 'systemctl restart docker'
+
+
+- name: Install Jq
+  become: yes
+  apt:
+    name: ['jq']
+
+- name: Erlang
+  become: yes
+  apt:
+    name: ['erlang-dev']
+    update_cache: yes
+
+# Install dependencies on the host
+- name: Install erl
+  become: yes
+  apt:
+    name: ['erlang-base']
+    update_cache: yes

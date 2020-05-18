@@ -11,14 +11,14 @@
     - role: openstack-instance
 
 - name: SSH Details
-  hosts: Testgroup
+  hosts: openstack.public_v4
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: ubuntu
-    ansible_ssh_private_key_file: /Users/hemanthchalla/Downloads/cloud-project/hemanth_test.pem
+    ansible_ssh_private_key_file: /hemanth_test.pem
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
   roles: 
     - role: openstack-proxy
     - role: openstack-dependencies
     # Install NodeJS
-    # - geerlingguy.nodejs
+    # - geerlingguy.nodejs 

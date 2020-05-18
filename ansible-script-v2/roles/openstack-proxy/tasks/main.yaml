@@ -1,0 +1,25 @@
+---
+# Adding environment variables for UniMelb proxy
+- name: Add proxy settings in /etc/environment
+  become: yes
+  blockinfile:
+    path: /etc/environment
+    block: |
+      HTTP_PROXY=http://wwwproxy.unimelb.edu.au:8000/ 
+      HTTPS_PROXY=http://wwwproxy.unimelb.edu.au:8000/ 
+      http_proxy=http://wwwproxy.unimelb.edu.au:8000/ 
+      https_proxy=http://wwwproxy.unimelb.edu.au:8000/ 
+      no_proxy=localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbourne.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au
+
+- name: Reboot Machine
+  become: yes
+  reboot:
+    reboot_timeout: 3000
+        
+# Initial update and upgrade of Ubuntu base system    
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 

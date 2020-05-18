@@ -1,0 +1,10 @@
+---
+# Add hosts to Ansible in-memory inventory
+- name: Add host
+  add_host:
+    name: '{{ item }}'
+    groups: Testgroup
+  loop: '{{ groups["os_instance.results"] }}'
+
+- debug:
+    msg : "{{groups['Testgroup']}}"

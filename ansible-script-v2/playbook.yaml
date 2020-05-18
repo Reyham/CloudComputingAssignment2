@@ -1,0 +1,37 @@
+- hosts: localhost
+  vars_files:
+    - host_vars/inventory.yaml
+
+  roles:
+    - role: openstack-common
+    - role: openstack-images
+    - role: openstack-volume
+    - role: openstack-security-group
+    - role: openstack-instance
+
+- name: SSH Details
+  hosts: Testgroup
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: /hemanth_test.pem
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+    size: 4
+    user: admin
+    password: admin
+    version: '3.0.0'
+    cookie: 'a192aeb9904e6590849337933b000c99'
+    uuid: 'a192aeb9904e6590849337933b001159'
+  roles: 
+    - role: openstack-proxy
+    - role: openstack-mount-volumes # Run only while creating the instances for the first time
+    - role: openstack-dependencies
+    - role: install-dependencies
+    - role: couchdb-docker
+    - role: create-database
+  environment:
+    HTTP_PROXY: http://wwwproxy.unimelb.edu.au:8000/
+    HTTPS_PROXY: http://wwwproxy.unimelb.edu.au:8000/
+    http_proxy: http://wwwproxy.unimelb.edu.au:8000/
+    https_proxy: http://wwwproxy.unimelb.edu.au:8000/
+    no_proxy: localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbourne.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au
