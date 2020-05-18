@@ -38,7 +38,7 @@ class CouchDBInstance():
 
     def insertTweet(self, tweet):
         # query if tweet exists
-        q = Query(self.db, use_index="_design/tweet_id", selector={'tweet_id': {'$eq': tweet["tweet_id"]}})
+        q = Query(self.db, use_index="_design/266e9847450c45f3f3913a08e6b7953629dfb98c", selector={'tweet_id_str': {'$eq': tweet["tweet_id_str"]}})
         result = q.result[:]
         if len(result) > 0:
             return
