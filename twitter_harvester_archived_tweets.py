@@ -96,11 +96,30 @@ def harvest_cloud_city_tweets(city, tp):
     # process and insert tweets into couchdb
     # pagination is way too slow so we have to make do with keys
     while ('rows' in res and len(res['rows']) > 1):
+        res_ = list(filter(lambda x: x['doc']['_id'] != max_id, res['rows']))
+        ids = [int(x['doc']['_id']) for x in res_]
+        max_id = max(ids)
+        print(ids)
+        print()
+        for tweet in res_:
+            if int(tweet['doc']['_id']) != max_id:
+                processed_tweet = tp.process_archived_status(tweet)
+                if processed_tweet is not None:
+                    couchdb.insertTweet(processed_tweet)
 
+        res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
+        write_id(city, max_id)
+
+
+        '''
+        # get the largest id not equal to max_id
+        ids = []
         for tweet in res['rows']:
             _id = int(tweet['doc']['_id'])
-            if _id > max_id:
-                max_id = _id
+            ids.append(_id)
+
+        new_max = max(ids)
+        if new_max == max_id
 
         # identify and remove tweet with max_id
         res_ = list(filter(lambda x: x['doc']['_id'] != max_id, res['rows']))
@@ -116,7 +135,7 @@ def harvest_cloud_city_tweets(city, tp):
         # fetch new results, for the same day and city
         res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
         write_id(city, max_id)
-
+        '''
 
 '''
 vals = {'start_key' : ["adelaide", 2020, 1, 1],
