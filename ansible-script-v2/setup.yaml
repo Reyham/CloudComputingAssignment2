@@ -1,4 +1,12 @@
-- hosts: nodes
+- hosts: os_instance.results
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+  roles:
+    - test-group
+
+
+- hosts: Testgroup
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no" 

@@ -5,29 +5,24 @@
   docker_image:
     name: ibmcom/couchdb3:{{ version }}
     source: pull
-
 # REMOVES EXISTING CONTAINERS
 - name: Check if containers running
   become: yes 
   docker_container_info:
     name: "couchdb1{{inventory_hostname}}"
   register: container_exists
-
 - name: If container running, stop
   become: yes
   when: container_exists.exists
   docker_container:
     name: "couchdb1{{inventory_hostname}}"
     state: stopped
-
-
 - name: Remove current docker containers
   become: yes 
   when: container_exists.exists
   docker_prune:
     containers: yes
     images: yes
-
 # CREATES DOCKER CONTAINER
 - name: Create docker container with volume
   become: yes
@@ -46,12 +41,14 @@
     image: ibmcom/couchdb3:{{ version}}
     volumes:
       - couch-volume:/database
-
+# Pause for 30 seconds to build app cache.
+- pause:
+    seconds: 30
 # CLUSTER SET UP
 - name: Set up cluster
-  when : inventory_hostname != Testgroup[0]
+  when : inventory_hostname in groups['Testgroup'][1:4]
   uri:
-    url:  http://{{user}}:{{password}}@{{Testgroup[0]}}:5984/_cluster_setup
+    url:  http://{{user}}:{{password}}@{{groups['Testgroup'][0]}}:5984/_cluster_setup
     method: POST
     body:
       action: "enable_cluster"
@@ -69,12 +66,10 @@
     status_code: 201
     headers:
       Content-Type: application/json
-
-
 - name: Connect to cluster, adding node
-  when : inventory_hostname != Testgroup[0]
+  when : inventory_hostname in groups['Testgroup'][1:4]
   uri:
-    url:  http://{{user}}:{{password}}@{{Testgroup[0]}}:5984/_cluster_setup
+    url:  http://{{user}}:{{password}}@{{groups['Testgroup'][0]}}:5984/_cluster_setup
     method: POST
     body:
       action: "add_node"
@@ -88,16 +83,12 @@
     status_code: 201
     headers:
       Content-Type: application/json
-
 - name: Empty get to ensure all ok
   uri:
     url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/
-
-
-
 # Complete set up
 - name: Finish cluster
-  when: inventory_hostname == Testgroup[0]
+  when: inventory_hostname in groups['Testgroup'][0]
   uri:
     url:  http://{{user}}:{{password}}@{{inventory_hostname}}:5984/_cluster_setup
     method: POST
@@ -110,12 +101,11 @@
     body_format: json
     status_code: 201
   register: finished_cluster
-
 # Check clustered nodes configuration
 - name: Check clustered nodes configuration
-  when: inventory_hostname == Testgroup[0]
+  when: inventory_hostname in groups['Testgroup'][0]
   uri:
-    url: 'http://{{ user}}:{{ password}}@{{inventory_hostname}}:5984/_membership'
+    url: http://{{ user}}:{{ password}}@{{inventory_hostname}}:5984/_membership
     force_basic_auth: yes
     validate_certs: no
     status_code: 200
