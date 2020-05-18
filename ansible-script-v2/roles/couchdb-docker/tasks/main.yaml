@@ -85,7 +85,7 @@
       Content-Type: application/json
 - name: Empty get to ensure all ok
   uri:
-    url: http://{{user}}:{{password}}@{{groups['Testgroup'][0]}}:5984/
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/
 # Complete set up
 - name: Finish cluster
   when: inventory_hostname in groups['Testgroup'][0]
