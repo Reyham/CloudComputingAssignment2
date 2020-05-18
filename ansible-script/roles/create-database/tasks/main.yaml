@@ -1,9 +1,9 @@
 ---
 # CREATES SINGLE SHARDED REPLICATED DATABASE
 - name: Create database
-  when: inventory_hostname == openstack.public_v4[0]
+  when: inventory_hostname in groups['configserver']
   uri:
-    url: http://admin:admin@{{openstack.public_v4[0]}}:5984/database?n=4&q=1
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database?n=4&q=1
     method: PUT
     url_username: admin
     status_code: 201

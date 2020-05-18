@@ -1,4 +1,3 @@
----
 - name: Environment setting up
   become: yes
   template:
