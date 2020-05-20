@@ -1,4 +1,4 @@
-import uuid
+import uuid, time
 import aurin_json
 from cloudant import couchdb, replicator
 from cloudant.design_document import DesignDocument
@@ -38,16 +38,26 @@ class CouchDBInstance():
 
     def insertTweet(self, tweet):
         # query if tweet exists
-        q = Query(self.db, use_index="_design/266e9847450c45f3f3913a08e6b7953629dfb98c", selector={'tweet_id_str': {'$eq': tweet["tweet_id_str"]}})
+
+        #t1 = time.time()
+        q = Query(self.db, use_index="_design/tweet_id", selector={'tweet_id': {'$eq': tweet["tweet_id"]}})
         result = q.result[:]
+        #if len(result) > 0:
+        #print("not inserting", tweet["tweet_id"], result[0]["tweet_id"], result[0]["created_at"])
+        #t2 = time.time()
+        #print(t2-t1, "DIFF")
         if len(result) > 0:
+            # print("FOUND", tweet, "\n", result, "\n")
             return
         else:
+            # t1 = time.time()
+            # print("inserting!")
             partition_key = PARTITION_KEY
             document_key = str(uuid.uuid4())
             tweet['_id'] = ':'.join((partition_key, document_key))
             self.db.create_document(tweet)
-
+            # t2 = time.time()
+            # print(t2-t1, "DIFF")
     def delete_all(self, db):
         for document in db:
             document.delete()
