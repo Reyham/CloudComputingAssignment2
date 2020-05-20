@@ -82,6 +82,7 @@ def harvest_cloud_city_tweets(city, tp):
 	now = datetime.datetime.now() - datetime.timedelta(days=5)
 	# past = now - datetime.timedelta(days=1)
 	print("current time", now)
+
 	max_id = read_id(city)
 	#if max_id is None:
 	#    max_id = 9223372036854775807
@@ -114,6 +115,7 @@ def harvest_cloud_city_tweets(city, tp):
 				if processed_tweet is not None:
 					couchdb.insertTweet(processed_tweet)
 		# print(city, max_id, "NEWMAX")
+
 		res = retrieve_tweets(city, start_year, start_month, start_day, now.year, now.month, now.day, max_id)
 		write_id(city, max_id)
 
@@ -124,6 +126,7 @@ def harvest_cloud_city_tweets(city, tp):
 			delta = datetime.timedelta(days=1)
 			now = now - delta
 			print("new time:", city, now)
+
 			seen = set()
 		else:
 			seen.add(max_id)
