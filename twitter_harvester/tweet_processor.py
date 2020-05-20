@@ -1,7 +1,8 @@
-import nltk, re, json
+import nltk, re, json, time
 from shpprocess import SHPProcessor
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import os
 nltk.download('punkt')
 nltk.download('vader_lexicon')
 '''
@@ -59,6 +60,7 @@ class TweetProcessor():
                 body = tweet['text']
 
             tweet_with_location['covid_relevant'] = self.is_covid_relevant(body)
+
             if tweet['lang'] == 'en':
                 score = self.calculate_sentiment(body)
                 if score is not None:
@@ -69,6 +71,7 @@ class TweetProcessor():
                 tweet_with_location['tweet_id'] = int(id)
                 tweet_with_location['tweet_id_str'] = tweet_with_location.pop('id_str')
                 tweet_with_location['doc_source'] = "couchdb"
+
             except ValueError:
                 return None
             return tweet_with_location
@@ -175,7 +178,7 @@ class TweetProcessor():
 
     def get_covid_words(self):
         words = []
-        with open("twitter-harvester/covid_words.txt", "r") as f:
+        with open("twitter_harvester/covid_words.txt", "r") as f:
             for line in f.readlines():
                 words.append(line.strip())
         return words
