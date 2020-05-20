@@ -10,6 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "leaflet": "^1.6.0"
+    "leaflet": "^1.6.0",
+    "nano": "^8.2.2",
+    "shpjs": "^3.5.0"
+  },
+  "devDependencies": {
+    "request": "^2.88.2"
   }
 }
