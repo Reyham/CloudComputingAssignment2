@@ -6,7 +6,7 @@ import tweepy
 import nltk
 import logging, time
 import nltk.data
-from tweet_processor import TweetProcessor
+from twitter_harvester.tweet_processor import TweetProcessor
 from multiprocessing import Process
 from tweepy import OAuthHandler
 from tweepy import Stream
@@ -90,7 +90,7 @@ class TwitterListener(StreamListener):
 
 
 
-def start_search(type="search", filename="twitter-harvester/query-config.txt", num=50, q=1):
+def start_search(type="search", filename="twitter_harvester/query-config.txt", num=50, q=1):
 
     '''
         Change DBURL if necessary. This WILL take few minutes one first try, since it sets up aurin data

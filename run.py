@@ -1,9 +1,9 @@
-import twitter_harvester
-import twitter_harvester_archived_tweets
+from twitter_harvester import twitter_harvester_search
+from twitter_harvester import twitter_harvester_archived_tweets
 import sys
 from couch_setup import CouchDBInstance
 from multiprocessing import Process
-from tweet_processor import TweetProcessor
+from twitter_harvester.tweet_processor import TweetProcessor
 
 '''
     Main entry point to setup couchdb, and start harvesting tweets
@@ -11,13 +11,13 @@ from tweet_processor import TweetProcessor
 
     Ex: python run.py stream
         python run.py search
-        python run.py cloud
+        python run.py cloud`
 '''
 
 def do_search(type):
     print("Starting search: ", type)
     if type == "search" or type == "stream":
-        twitter_harvester.start_search(type=type)
+        twitter_harvester_search.start_search(type=type)
 
 
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     db = CouchDBInstance('http://127.0.0.1:5984')
-    print("AURIN data loaded into Couchdb")
+    db.insert_AURIN_if_not_exists()
 
     types = sys.argv[1:]
     start_processes(types)

@@ -1,7 +1,7 @@
 import pycurl, datetime, json, sys, os
 from io import BytesIO
 from urllib.parse import urlencode
-from tweet_processor import TweetProcessor
+from twitter_harvester.tweet_processor import TweetProcessor
 from couch_setup import CouchDBInstance
 import time
 
@@ -56,7 +56,7 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
 
 def read_id(city):
 	try:
-		with open("./cloud_skip/" + city + "_offset", "r") as f:
+		with open("cloud_skip/" + city + "_offset", "r") as f:
 			x = int(f.read().strip())
 			return x
 	except (IOError, ValueError) as e:
@@ -66,14 +66,14 @@ def read_id(city):
 
 def write_id(city, id):
 	try:
-		with open("./cloud_skip/" + city + "_offset", "w") as f:
+		with open("cloud_skip/" + city + "_offset", "w") as f:
 			f.write(str(id))
 	except IOError:
 		return None
 
 def harvest_cloud_city_tweets(city, tp):
-	if not os.path.exists('./cloud_skip/' + city + "_offset"):
-		with open('./cloud_skip/' + city + "_offset", 'w'): pass
+	if not os.path.exists('cloud_skip/' + city + "_offset"):
+		with open('cloud_skip/' + city + "_offset", 'w'): pass
 
 	limit = 50
 	couchdb = CouchDBInstance()
@@ -113,6 +113,7 @@ def harvest_cloud_city_tweets(city, tp):
 			if intid != max_id:
 				processed_tweet = tp.process_archived_status(tweet)
 				if processed_tweet is not None:
+					#print(processed_tweet)
 					couchdb.insertTweet(processed_tweet)
 		# print(city, max_id, "NEWMAX")
 
