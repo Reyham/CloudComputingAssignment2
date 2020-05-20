@@ -32,7 +32,7 @@ def start_processes(types):
             print("Starting couchdb tweet repo search")
             tp = TweetProcessor("search")
             # harvest the data richard provided
-            cities = ["hobart"]
+            cities = ["melbourne", "brisbane", "sydney", "canberra", "adelaide", "hobart", "perth"]
             # one process for each city
             for c in cities:
                 procs.append(Process(target=twitter_harvester_archived_tweets.harvest_cloud_city_tweets,
