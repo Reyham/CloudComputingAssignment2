@@ -1,1 +1,0 @@
-{"_id": "_design/score","views": {"score": {"reduce": "function (keys, values, rereduce) {return sum(values)/values.length;}","map": "function (doc) {if (doc.doc_type === \"tweet\" && doc.score) {emit(doc.sa2_name16, doc.score); }}"}}}
