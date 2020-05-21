@@ -1,74 +1,47 @@
-- name: "Create views"
+- name: "Create sentiment views"
   when: inventory_hostname in groups['Testgroup'][0]
   uri:
-    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/sa2_code16
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/score
     method: PUT
     user: "{{user}}"
     password: "{{password}}"
     return_content: yes
     headers:
       Content-Type: "application/json"
-    body: "{{ lookup('template','roles/views/templates/sa2MapReduce.json') }}"
+    body: "{{ lookup('template','roles/views/templates/sentimentReduce.json') }}"
     force_basic_auth: yes
     validate_certs: no
     body_format: json
     status_code: 201, 202
-- name: "Create views"
-    when: inventory_hostname in groups['Testgroup'][0]
+
+- name: "Create covid views"
+  when: inventory_hostname in groups['Testgroup'][0]
   uri:
-    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/sa3_code16
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/covid
     method: PUT
     user: "{{user}}"
     password: "{{password}}"
     return_content: yes
     headers:
       Content-Type: "application/json"
-    body: "{{ lookup('template','roles/views/templates/sa3MapReduce.json') }}"
+    body: "{{ lookup('template','roles/views/templates/covidReduce.json') }}"
     force_basic_auth: yes
     validate_certs: no
     body_format: json
     status_code: 201, 202
-- name: "Create views"
+
+
+- name: "Create non English views"
   when: inventory_hostname in groups['Testgroup'][0]
   uri:
-    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/doc_type
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/language
     method: PUT
     user: "{{user}}"
     password: "{{password}}"
     return_content: yes
     headers:
       Content-Type: "application/json"
-    body: "{{ lookup('template','roles/views/templates/docTypeMapReduce.json') }}"
-    force_basic_auth: yes
-    validate_certs: no
-    body_format: json
-    status_code: 202,201
-- name: "Create views"
-  when: inventory_hostname in groups['Testgroup'][0]
-  uri:
-    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/tweet_id
-    method: PUT
-    user: "{{user}}"
-    password: "{{password}}"
-    return_content: yes
-    headers:
-      Content-Type: "application/json"
-    body: "{{ lookup('template','roles/views/templates/tweetIdMapReduce.json') }}"
-    force_basic_auth: yes
-    validate_certs: no
-    body_format: json
-    status_code: 201, 202
-- name: "Create views"
-  when: inventory_hostname in groups['Testgroup'][0]
-  uri:
-    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/gcc_code16
-    method: PUT
-    user: "{{user}}"
-    password: "{{password}}"
-    return_content: yes
-    headers:
-      Content-Type: "application/json"
-    body: "{{ lookup('template','roles/views/templates/gccMapReduce.json') }}"
+    body: "{{ lookup('template','roles/views/templates/nonEnglishReduce.json') }}"
     force_basic_auth: yes
     validate_certs: no
     body_format: json
