@@ -1,1 +1,0 @@
-{"views":{"all": {"map": "function (doc) {emit(doc.doc_type, doc)}","reduce": "function (keys, values){return sum(values)}"}}}
