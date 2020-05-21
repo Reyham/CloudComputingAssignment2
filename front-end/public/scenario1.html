@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+
+  </head>
+
+
+  <body>
+    <div class="container-fluid">
+      <div id="nav-placeholder"></div>
+        <script>
+        $(function(){
+          $("#nav-placeholder").load("static/nav.html");
+        });
+        </script>
+
+       <div class="mb-5 p-5">
+      <div class="row d-flex justify-content-center">
+          <div class="col-md-6">
+          <h2>Scenario 1: Are people tweeting about COVID-19 living in more unequal areas?</h2>
+          <p>Income inequality is rising in Australia. Inequality is associated with stress, anxiety, and depression
+          (Wilkinson and Pickett). If people anxious about COVID-19 tweet about it, then we might expect that
+          areas with high inequaity would have more COVID related tweets.</p>
+
+          <p>We downloaded a dataset from AURIN that measured income inequality in each statistical area (Level 3).
+          In this map, the more red an area is, the higher that area's Gini coefficient (a measure of income inequality).
+          We compared each area's Gini coefficient with the number of COVID related tweets we collected from each area.</p>
+
+          <p><strong>References</strong></p>
+          <p>Wilkinson, Richard, and Kate Pickett.
+            “Inequality Breeds Stress and Anxiety. No Wonder so Many Britons Are Suffering.”
+            The Guardian, 10 June 2018. </p>
+
+
+          <div id='map' style='width: 100%; height: 500px;'></div>
+
+          <script>
+            mapboxgl.accessToken = 'pk.eyJ1Ijoicy1rYXJraSIsImEiOiJja2FleHYzZTkwcTNnMnhsZDlhaW12cGkzIn0.X5DdzZBZmrDsTYr1fAWKgA';
+            let map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/s-karki/ckagdrfgj0kxs1io6g9oc6zsb'
+            });
+          </script>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+  </body>
+</html>

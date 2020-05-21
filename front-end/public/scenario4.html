@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+
+  </head>
+
+
+  <body>
+    <div class="container-fluid">
+      <div id="nav-placeholder"></div>
+        <script>
+        $(function(){
+          $("#nav-placeholder").load("static/nav.html");
+        });
+        </script>
+
+       <div class="mb-5 p-5">
+      <div class="row d-flex justify-content-center">
+          <div class="col-md-6">
+          <h2>Scenario 4: Does the number of  non-english tweet correlate with migration rate?</h2>
+          <p>Australia is a multicultural society. We observed tweets in multiple languages. We wondered if there
+          was a relationship between the number of non-english tweets, and the ethnic, racial, and linguistic diversity of a community.
+        To measure diversity, we gathered the migration rate (proportion of new immigrants) for each statistical area (Level 2)</p>
+          <div id='map' style='width: 100%; height: 500px;'></div>
+
+          <script>
+            mapboxgl.accessToken = 'pk.eyJ1Ijoicy1rYXJraSIsImEiOiJja2FleHYzZTkwcTNnMnhsZDlhaW12cGkzIn0.X5DdzZBZmrDsTYr1fAWKgA';
+            let map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/s-karki/ckafbj8fo04be1invs0hc77n1'
+            });
+          </script>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+  </body>
+</html>
