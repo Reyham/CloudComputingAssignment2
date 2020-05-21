@@ -124,7 +124,8 @@ def setup_geo_election_data():
                 election_data_sa2[sa2code]["tpp_liberal_national_coalition_votes"] += entry["tpp_liberal_national_coalition_votes"]
 
         # print(election_data_sa2["311061333"].keys())
-        return list(election_data_sa2.values())
+        #return list(election_data_sa2.values())
+        return election_data_sa2
         '''
             ready to insert into couchdb.
             Insert the SA2 code, and the aggregate results for each SA2 region in election_data_sa2
@@ -185,7 +186,7 @@ def setup_geo_economy_data():
 
         '''
 '''
-Q4: do the frequencies of tweets in different languages
+Q4: do the number of non-english tweets in different languages
 show a relationship with the migration rate of their neighbourhood
 
 tweet[lang] --> language of each tweet (aggregate for each area)

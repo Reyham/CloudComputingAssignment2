@@ -23,7 +23,7 @@ DB_URL = 'http://127.0.0.1:5984'
 
 class CouchDBInstance():
     def __init__(self, url=DB_URL):
-        client = CouchDB(user=USERNAME, auth_token=PASSWORD, url=url, connect=True, auto_renew=True, use_basic_auth=True)
+        client = CouchDB(user=USERNAME, auth_token=PASSWORD, url=DB_URL, connect=True, auto_renew=True, use_basic_auth=True)
         self.db = CouchDatabase(client, DB_NAME, fetch_limit=100, partitioned=False)
 
     def insert_AURIN_if_not_exists(self):
