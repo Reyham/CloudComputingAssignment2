@@ -1,0 +1,65 @@
+- name: "Create sentiment views"
+  when: inventory_hostname in groups['Testgroup'][0]
+  uri:
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/score
+    method: PUT
+    user: "{{user}}"
+    password: "{{password}}"
+    return_content: yes
+    headers:
+      Content-Type: "application/json"
+    body: "{{ lookup('template','roles/views/templates/sentimentReduce.json') }}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    status_code: 201, 202
+
+- name: "Create covid views"
+  when: inventory_hostname in groups['Testgroup'][0]
+  uri:
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/covid
+    method: PUT
+    user: "{{user}}"
+    password: "{{password}}"
+    return_content: yes
+    headers:
+      Content-Type: "application/json"
+    body: "{{ lookup('template','roles/views/templates/covidReduce.json') }}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    status_code: 201, 202
+
+
+- name: "Create non English views"
+  when: inventory_hostname in groups['Testgroup'][0]
+  uri:
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/language
+    method: PUT
+    user: "{{user}}"
+    password: "{{password}}"
+    return_content: yes
+    headers:
+      Content-Type: "application/json"
+    body: "{{ lookup('template','roles/views/templates/nonEnglishReduce.json') }}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    status_code: 201, 202
+
+
+- name: "Create covid sa3 views"
+  when: inventory_hostname in groups['Testgroup'][0]
+  uri:
+    url: http://{{user}}:{{password}}@{{inventory_hostname}}:5984/database/_design/covid_sa3
+    method: PUT
+    user: "{{user}}"
+    password: "{{password}}"
+    return_content: yes
+    headers:
+      Content-Type: "application/json"
+    body: "{{ lookup('template','roles/views/templates/covidsa3Reduce.json') }}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    status_code: 201, 202
