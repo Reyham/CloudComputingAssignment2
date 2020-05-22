@@ -1,8 +1,12 @@
-import nltk, re, json, time
-from shpprocess import SHPProcessor
+import nltk, re, json, time, sys
+# from shpprocess import SHPProcessor
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import os
+sys.path.append("..")
+from shpprocess import SHPProcessor
+
+
 nltk.download('punkt')
 nltk.download('vader_lexicon')
 '''
