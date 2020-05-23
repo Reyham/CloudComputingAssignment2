@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
 
 
   </head>
@@ -35,6 +36,12 @@
         To measure diversity, we gathered the migration rate (proportion of new immigrants) for each statistical area (Level 2)</p>
           <div id='map' style='width: 100%; height: 500px;'></div>
 
+
+          <!-- Invisible tags to pass into plot.js -->
+          <script id="data" type="application/json"></script>
+          <div id="graph"></div>
+
+
           <script>
             mapboxgl.accessToken = 'pk.eyJ1Ijoicy1rYXJraSIsImEiOiJja2FleHYzZTkwcTNnMnhsZDlhaW12cGkzIn0.X5DdzZBZmrDsTYr1fAWKgA';
             let map = new mapboxgl.Map({
@@ -44,11 +51,21 @@
 
             sa2pop = {}
             language_data = {}
-            // get pop counts
-            $.getJSON("static/json/sa2_population.json", function(data) {
-              data.features.forEach(function(place) {
-                sa2pop[place.properties.sa2_name16] = place.properties.persons_num;
-              });
+            // // get pop counts
+            // $.getJSON("static/json/sa2_population.json", function(data) {
+            //   data.features.forEach(function(place) {
+            //     sa2pop[place.properties.sa2_name16] = place.properties.persons_num;
+            //   });
+            // });
+
+            $.ajax({
+              url:"static/json/sa2_population.json",
+              dataType : 'json',
+              async : false,
+              success : function(data) {
+                data.features.forEach(function(place) {
+                  sa2pop[place.properties.sa2_name16] = place.properties.persons_num;
+                });              }
             });
 
 
@@ -70,6 +87,24 @@
                 mig = data
               }
             });
+
+            data = {"data":[]}
+
+
+
+            // normalise all language counts (adjust for population)
+
+            Object.keys(mig).forEach((key, index) => {
+              obj = {};
+              if (mig[key] && language_data[key] && mig[key] !== "NaN" && language_data[key] > 0) {
+                  obj.x = mig[key];
+                  obj.y = language_data[key] * 1000 / sa2pop[key];
+                  data.data.push(obj);
+              }
+            });
+            data["question"] = "4"
+            document.getElementById("data").innerHTML = JSON.stringify(data);
+
 
             $.getJSON("static/json/sa2.geojson", function(data) {
               data.features.forEach(function(marker) {
@@ -99,6 +134,9 @@
             });
 
           </script>
+          <script src="static/plot.js" data-width="200" data-height="200">
+          </script>
+
       </div>
     </div>
   </div>

@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
 
 
   </head>
@@ -35,8 +36,14 @@
         the more green an area is, the more trusting survey respondents were (they demonstrated <i>less mistrust</i>)</p>
         <p>We wondered if people living in less trusting areas were more worried about COVID-19, and therefore more likely to
         tweet about it. We do recognise that a propensity to tweet about COVID-19 doesn't necessarily mean one is worried about COVID-19.
-      In any case, we wanted to see if there was a relationship between community trust and one's tendency to <i>think about</i> COVID-19.</p>
+        In any case, we wanted to see if there was a relationship between community trust and one's tendency to <i>think about</i> COVID-19.</p>
+
           <div id='map' style='width: 100%; height: 500px;'></div>
+
+          <!-- Invisible tags to pass into plot.js -->
+          <script id="data" type="application/json"></script>
+          <div id="graph"></div>
+
 
           <script>
             mapboxgl.accessToken = 'pk.eyJ1Ijoicy1rYXJraSIsImEiOiJja2FleHYzZTkwcTNnMnhsZDlhaW12cGkzIn0.X5DdzZBZmrDsTYr1fAWKgA';
@@ -74,6 +81,22 @@
               }
             });
 
+            data = {"data":[]}
+            Object.keys(trust).forEach((key, index) => {
+              obj = {};
+
+              if (trust[key] && covid_data[key] && trust[key] !== "NaN") {
+                  obj.x = trust[key]
+                  obj.y = covid_data[key]
+                  data.data.push(obj);
+              }
+            });
+
+
+            data["question"] = "3"
+            document.getElementById("data").innerHTML = JSON.stringify(data);
+
+
             $.getJSON("static/json/sa2.geojson", function(data) {
               data.features.forEach(function(marker) {
                 // create a HTML element for each feature
@@ -101,6 +124,10 @@
               });
             });
           </script>
+
+          <script src="static/plot.js" data-width="200" data-height="200">
+          </script>
+
       </div>
     </div>
   </div>
