@@ -53,7 +53,7 @@
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML('<p>' + 'area: ' +  marker.properties.area + '<p>'))
+                .setHTML('<p>' + 'area: ' +  marker.properties.area + '</p><p>' + 'Sentiment score: ' + marker.properties.sentiment_score + '</p>'))
                 .addTo(map);
 
               });

@@ -52,7 +52,7 @@
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML('<p>' + 'area: ' +  marker.properties.area + '<p>'))
+                .setHTML('<p>' + 'area: ' +  marker.properties.area + '</p><p>' + 'Non-english tweet count: ' + marker.properties.non_english_tweets + '</p>'))
                 .addTo(map);
 
               });
