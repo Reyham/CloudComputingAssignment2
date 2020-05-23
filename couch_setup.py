@@ -26,57 +26,21 @@ class CouchDBInstance():
         client = CouchDB(user=USERNAME, auth_token=PASSWORD, url=DB_URL, connect=True, auto_renew=True, use_basic_auth=True)
         self.db = CouchDatabase(client, DB_NAME, fetch_limit=100, partitioned=False)
 
-    def insert_AURIN_if_not_exists(self):
-        q = Query(self.db, use_index="_design/tweet_id", selector={'doc_type': {'$eq': "has_all_aurin"}})
-        result = q.result[:]
-        print(result)
-        if len(result) == 0:
-            print("commencing AURIN spatial data upload!")
-            x = aurin_json.setup_geo_economy_data()
-            y = aurin_json.setup_geo_trust_data()
-            z = aurin_json.setup_geo_election_data()
-            q = aurin_json.setup_migration_data()
-
-            for geodata in x + y + z + q:
-                self.insertAURIN(geodata)
-
-            print("AURIN upload complete!")
-            # insert marker to prevent duplicate upload of data
-            json = {"doc_type":"has_all_aurin"}
-            self.insertAURIN(json)
-        else:
-            print("AURIN data already loaded!")
-
-
-    def insertAURIN(self, json):
-        partition_key = PARTITION_KEY
-        document_key = str(uuid.uuid4())
-        json['_id'] = ':'.join((partition_key, document_key))
-        self.db.create_document(json)
-
 
     def insertTweet(self, tweet):
-        # query if tweet exists
-        #print(tweet)
-        #t1 = time.time()
+
         q = Query(self.db, use_index="_design/tweet_id", selector={'tweet_id': {'$eq': tweet["tweet_id"]}})
         result = q.result[:]
-        #if len(result) > 0:
-        #print("not inserting", tweet["tweet_id"], result[0]["tweet_id"], result[0]["created_at"])
-        #t2 = time.time()
-        #print(t2-t1, "DIFF")
+
         if len(result) > 0:
-            # print("FOUND", tweet, "\n", result, "\n")
             return
         else:
-            # t1 = time.time()
-            # print("inserting!")
+
             partition_key = PARTITION_KEY
             document_key = str(uuid.uuid4())
             tweet['_id'] = ':'.join((partition_key, document_key))
             self.db.create_document(tweet)
-            # t2 = time.time()
-            # print(t2-t1, "DIFF")
+
     def delete_all(self):
         for document in self.db:
             document.delete()

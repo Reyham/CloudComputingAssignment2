@@ -54,7 +54,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     db = CouchDBInstance('http://127.0.0.1:5984')
-    # db.insert_AURIN_if_not_exists()
 
     types = sys.argv[1:]
     start_processes(types)
