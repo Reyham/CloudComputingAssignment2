@@ -51,6 +51,17 @@
               });
             });
 
+
+            score = {}
+            $.ajax({
+              url:"score",
+              dataType : 'json',
+              async : false,
+              success : function(data) {
+                score = data
+              }
+            });
+
             $.getJSON("static/json/sa2.geojson", function(data) {
               data.features.forEach(function(marker) {
                 // create a HTML element for each feature
@@ -58,14 +69,18 @@
                 el.className = 'marker';
 
                 area = marker.properties.area;
-                population = sa2pop[area;
+                population = sa2pop[area];
+
+                sentiment_avg = parseFloat(score[area]).toFixed(3);
+
+                html_str = '<p>' + 'area: ' +  area + '</p>'
+                        + '<p>' + 'population: ' + population + '</p>'
+                        + '<p>' + 'Sentiment score: ' + sentiment_avg + '</p>'
 
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML('<p>' + 'area: ' +  area + '</p>'
-                        + '<p>' + 'population: ' + population + '</p>'
-                        + '<p>' + 'Sentiment score: ' + marker.properties.sentiment_score + '</p>'))                
+                .setHTML(html_str))
                 .addTo(map);
 
               });

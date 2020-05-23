@@ -46,11 +46,21 @@
             });
 
             sa2pop = {}
+            covid_data = {}
             // get pop counts
             $.getJSON("static/json/sa2_population.json", function(data) {
               data.features.forEach(function(place) {
                 sa2pop[place.properties.sa2_name16] = place.properties.persons_num;
               });
+            });
+
+            $.ajax({
+              url:"covid",
+              dataType : 'json',
+              async : false,
+              success : function(data) {
+                covid_data = data
+              }
             });
 
             $.getJSON("static/json/sa2.geojson", function(data) {
@@ -62,13 +72,17 @@
                 area = marker.properties.area;
                 population = sa2pop[area];
 
+                num_tweets = (area in covid_data) ? covid_data[area] : 0
+
+
+                html_str = '<p>' + 'area: ' +  area + '</p>'
+                        + '<p>' + 'population: ' + population + '</p>'
+                        + '<p>' + 'COVID-related tweet count: ' + num_tweets+ '</p>'
 
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML('<p>' + 'area: ' +  area + '</p>'
-                        + '<p>' + 'population: ' + population + '</p>'
-                        + '<p>' + 'COVID-related tweet count: ' + marker.properties.covid_tweets + '</p>'))
+                .setHTML(html_str))
                 .addTo(map);
 
               });

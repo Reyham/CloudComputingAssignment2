@@ -43,11 +43,22 @@
             });
 
             sa2pop = {}
+            language_data = {}
             // get pop counts
             $.getJSON("static/json/sa2_population.json", function(data) {
               data.features.forEach(function(place) {
                 sa2pop[place.properties.sa2_name16] = place.properties.persons_num;
               });
+            });
+
+
+            $.ajax({
+              url:"language",
+              dataType : 'json',
+              async : false,
+              success : function(data) {
+                language_data = data
+              }
             });
 
             $.getJSON("static/json/sa2.geojson", function(data) {
@@ -58,13 +69,16 @@
 
                 area = marker.properties.area;
                 population = sa2pop[area];
+                count = language_data[area] == undefined ? 0 : language_data[area];
+
+                html_str = '<p>' + 'area: ' +  area + '</p>'
+                        + '<p>' + 'population: ' + population + '</p>'
+                        + '<p>' +  'Non-english tweet count: ' + count + '</p>';
 
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML('<p>' + 'area: ' +  area + '</p>'
-                        + '<p>' + 'population: ' + population + '</p>'
-                        + '<p>' +  'Non-english tweet count: ' + marker.properties.non_english_tweets + '</p>'))
+                .setHTML(html_str))
                 .addTo(map);
 
               });
