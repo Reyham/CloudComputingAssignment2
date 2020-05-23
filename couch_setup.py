@@ -1,5 +1,4 @@
 import uuid, time
-import aurin_json
 from cloudant import couchdb, replicator
 from cloudant.design_document import DesignDocument
 from cloudant.query import Query, QueryResult

@@ -1,11 +1,11 @@
 import nltk, re, json, time, sys
-# from shpprocess import SHPProcessor
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import os
-sys.path.append("..")
 from shpprocess import SHPProcessor
 
+import pathlib
+path = str(pathlib.Path(__file__).parent.absolute())
 
 nltk.download('punkt')
 nltk.download('vader_lexicon')
@@ -182,7 +182,7 @@ class TweetProcessor():
 
     def get_covid_words(self):
         words = []
-        with open("twitter_harvester/covid_words.txt", "r") as f:
+        with open(path + "/covid_words.txt", "r") as f:
             for line in f.readlines():
                 words.append(line.strip())
         return words

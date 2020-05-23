@@ -14,6 +14,12 @@ from tweepy.streaming import StreamListener
 from couch_setup import CouchDBInstance
 from urllib3.exceptions import ProtocolError
 
+import pathlib
+path_ = pathlib.Path(__file__).parent.absolute()
+path = str(path)
+parent_path = str(path.parent.absolute())
+
+
 '''
 
 This file contains methods to harvest tweets in Australia (and only geo-tagged tweets) using the the twitter APIs referenced on this page:
@@ -90,7 +96,7 @@ class TwitterListener(StreamListener):
 
 
 
-def start_search(type="search", filename="twitter_harvester/query-config.txt", num=50, q=1):
+def start_search(type="search", num=50, q=1):
 
     '''
         Change DBURL if necessary. This WILL take few minutes one first try, since it sets up aurin data
@@ -99,6 +105,7 @@ def start_search(type="search", filename="twitter_harvester/query-config.txt", n
 
     if type == SEARCH_TYPE:
         processor = TweetProcessor(SEARCH_TYPE)
+        filename = path + "/query-config.txt"
 
         with open(filename, 'r') as f:
             query = f.readline().rstrip()
@@ -121,7 +128,7 @@ def start_search(type="search", filename="twitter_harvester/query-config.txt", n
 
     elif type == SEARCH_TYPE:
         max_id = 0
-        with open('max_id.txt', 'r') as f:
+        with open(path + '/max_id.txt', 'r') as f:
             max_id = int(f.read().strip())
 
         total_tweets_collected = 0
@@ -145,7 +152,7 @@ def start_search(type="search", filename="twitter_harvester/query-config.txt", n
                     if tweet.id < max_id:
                         max_id = tweet.id
 
-                with open('max_id.txt', 'w') as f:
+                with open(path + '/max_id.txt', 'w') as f:
                     f.write(str(max_id))
 
 

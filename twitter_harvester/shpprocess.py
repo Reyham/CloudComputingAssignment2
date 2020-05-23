@@ -8,14 +8,17 @@ import geopandas, json
 import pandas as pd
 from shapely.geometry import Polygon
 
+import pathlib
+path = pathlib.Path(__file__).parent.absolute()
+parent_path = path.parent.absolute()
 
 class SHPProcessor():
     # load shape/geometry data for SA2/SA3 neighbourhood, depending on filename
     def __init__(self, type):
         if type == "SA2":
-            filename = "shpfiles/SA2_2016_AUST.shp"
+            filename = parent_path + "shpfiles/SA2_2016_AUST.shp"
         elif type == "SA3":
-            filename =  "shpfiles/SA3_2016_AUST.shp"
+            filename =  parent_path + "shpfiles/SA3_2016_AUST.shp"
 
         s = geopandas.read_file(filename)
         self.sadata = s[~s.geometry.isna()]

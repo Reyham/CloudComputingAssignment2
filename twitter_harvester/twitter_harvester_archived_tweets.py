@@ -4,7 +4,9 @@ from urllib.parse import urlencode
 from twitter_harvester.tweet_processor import TweetProcessor
 from couch_setup import CouchDBInstance
 import time
-path = os.path.dirname(os.path.abspath(__file__))
+
+import pathlib
+path = str(pathlib.Path(__file__).parent.absolute())
 
 
 def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_month, end_day, id):
