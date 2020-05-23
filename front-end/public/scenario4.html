@@ -61,6 +61,16 @@
               }
             });
 
+            mig = {}
+            $.ajax({
+              url:"/static/json/aurin/sa2_migration.json",
+              dataType : 'json',
+              async : false,
+              success : function(data) {
+                mig = data
+              }
+            });
+
             $.getJSON("static/json/sa2.geojson", function(data) {
               data.features.forEach(function(marker) {
                 // create a HTML element for each feature
@@ -70,10 +80,14 @@
                 area = marker.properties.area;
                 population = sa2pop[area];
                 count = language_data[area] == undefined ? 0 : language_data[area];
+                migrate = mig[area]
+
 
                 html_str = '<p>' + 'area: ' +  area + '</p>'
                         + '<p>' + 'population: ' + population + '</p>'
-                        + '<p>' +  'Non-english tweet count: ' + count + '</p>';
+                        + '<p>' +  'Non-english tweet count: ' + count + '</p>'
+                        + '<p>' +  'Migration rate ' + migrate + '</p>';
+
 
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)

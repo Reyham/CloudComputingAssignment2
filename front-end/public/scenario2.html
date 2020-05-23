@@ -51,7 +51,7 @@
               });
             });
 
-
+            // get sentiment score
             score = {}
             $.ajax({
               url:"score",
@@ -62,6 +62,19 @@
               }
             });
 
+            election = {}
+            $.ajax({
+              url:"/static/json/aurin/sa2_election.json",
+              dataType : 'json',
+              async : false,
+              success : function(data) {
+                election = data
+              }
+            });
+
+
+            //get election results
+
             $.getJSON("static/json/sa2.geojson", function(data) {
               data.features.forEach(function(marker) {
                 // create a HTML element for each feature
@@ -70,12 +83,14 @@
 
                 area = marker.properties.area;
                 population = sa2pop[area];
+                electionresult = election[area];
 
                 sentiment_avg = parseFloat(score[area]).toFixed(3);
 
                 html_str = '<p>' + 'area: ' +  area + '</p>'
                         + '<p>' + 'population: ' + population + '</p>'
-                        + '<p>' + 'Sentiment score: ' + sentiment_avg + '</p>'
+                        + '<p>' + 'avg sentiment score: ' + sentiment_avg + '</p>'
+                        + '<p>' + 'liberal party vote: ' + electionresult + '</p>'
 
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)

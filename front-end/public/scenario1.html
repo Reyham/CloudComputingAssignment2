@@ -48,7 +48,6 @@
 
 
           <script>
-
             mapboxgl.accessToken = 'pk.eyJ1Ijoicy1rYXJraSIsImEiOiJja2FleHYzZTkwcTNnMnhsZDlhaW12cGkzIn0.X5DdzZBZmrDsTYr1fAWKgA';
             let map = new mapboxgl.Map({
             container: 'map',
@@ -71,7 +70,17 @@
               success : function(data) {
                 covid_data = data
               }
-            });;
+            });
+
+            gini = {}
+            $.ajax({
+              url:"/static/json/aurin/sa3_economy.json",
+              dataType : 'json',
+              async : false,
+              success : function(data) {
+                gini = data
+              }
+            });
 
 
             $.getJSON("static/json/sa3.geojson", function(data) {
@@ -81,12 +90,15 @@
                 el.className = 'marker';
                 area = marker.properties.area
                 population = sa3pop[area]
+                ginicoeff = gini[area]
 
                 num_tweets = (area in covid_data) ? covid_data[area] : 0
 
                 html_str = '<p>' + 'area: ' +  area + '</p>'
                         + '<p>' + 'population: ' + population + '</p>'
                         + '<p>' + 'COVID-related tweet count: ' + num_tweets + '</p>'
+                        + '<p>' + 'Gini-coefficient: ' + ginicoeff + '</p>'
+
 
 
                 new mapboxgl.Marker(el)
