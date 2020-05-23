@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 from twitter_harvester.tweet_processor import TweetProcessor
 from couch_setup import CouchDBInstance
 import time
-
+path = os.path.dirname(os.path.abspath(__file__))
 
 
 def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_month, end_day, id):
@@ -39,24 +39,11 @@ def retrieve_tweets(city, start_year, start_month, start_day, end_year, end_mont
 	c.close()
 
 	return json.loads(buffer.getvalue().decode('utf-8'))
-	'''
-	while retries > 0:
-		try:
-			c.perform()
-			success = True
-		except pycurl.error:
-			retries -= 1
-			time.sleep(5)
-			print(pycurl.error)
-	if success:
-		return json.loads(buffer.getvalue().decode('utf-8'))
-	else:
-		return None
-	'''
 
 def read_id(city):
+
 	try:
-		with open("cloud_skip/" + city + "_offset", "r") as f:
+		with open(path + "/cloud_skip/" + city + "_offset", "r") as f:
 			x = int(f.read().strip())
 			return x
 	except (IOError, ValueError) as e:
@@ -66,14 +53,14 @@ def read_id(city):
 
 def write_id(city, id):
 	try:
-		with open("cloud_skip/" + city + "_offset", "w") as f:
+		with open(path + "/cloud_skip/" + city + "_offset", "w") as f:
 			f.write(str(id))
 	except IOError:
 		return None
 
 def harvest_cloud_city_tweets(city, tp):
-	if not os.path.exists('cloud_skip/' + city + "_offset"):
-		with open('cloud_skip/' + city + "_offset", 'w'): pass
+	if not os.path.exists(path + '/cloud_skip/' + city + "_offset"):
+		with open(path + '/cloud_skip/' + city + "_offset", 'w'): pass
 
 	limit = 50
 	couchdb = CouchDBInstance()
@@ -86,6 +73,7 @@ def harvest_cloud_city_tweets(city, tp):
 	max_id = read_id(city)
 	#if max_id is None:
 	#    max_id = 9223372036854775807
+	print(max_id)
 
 	print('harvesting tweets for city: ', city)
 
@@ -131,6 +119,7 @@ def harvest_cloud_city_tweets(city, tp):
 			seen = set()
 		else:
 			seen.add(max_id)
+
 
 
 # harvest_cloud_city_tweets("hobart", TweetProcessor("search"))

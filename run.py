@@ -9,9 +9,10 @@ from twitter_harvester.tweet_processor import TweetProcessor
     Main entry point to setup couchdb, and start harvesting tweets
     Configurations –– harvest with stream API, standard API, or both!
 
-    Ex: python run.py stream
-        python run.py search
-        python run.py cloud`
+    Ex: nohup python3 -u  run.py stream &
+        nohup python3 -u run.py search &
+        nohup python3 -u run.py cloud &
+        node ../front_end/index.js
 '''
 
 def do_search(type):
