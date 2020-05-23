@@ -1,7 +1,10 @@
 import json, csv
 import pandas as pd
 
-from shpprocess import SHPProcessor
+from twitter_harvester.shpprocess import SHPProcessor
+import pathlib
+path = pathlib.Path(__file__).parent.absolute()
+parent = path.parent.absolute()
 
 
 '''
@@ -206,3 +209,67 @@ def setup_migration_data():
             migration_data.append(properties)
 
         return migration_data
+
+# el =  setup_geo_election_data()
+# create front end json file for q2
+# with open(str(path) + "/front-end/public/json/aurin/sa2_election.json", "w") as f:
+#     data = {}
+#
+#     for x in el.values():
+#         area = x["sa2_name16"]
+#         libvote = x["tpp_liberal_national_coalition_votes"]
+#         labvote = x["tpp_australian_labor_party_votes"]
+#         print(area, libvote, labvote)
+#         try:
+#             libprop = round(libvote / (libvote + labvote), 2)
+#         except ZeroDivisionError:
+#             libprop = None
+#         data[area] = libprop
+#
+#
+#     json.dump(data, f)
+
+# create a json file for the front end for q1
+# gini = setup_geo_economy_data()
+# with open(str(path) + "/front-end/public/json/aurin/sa3_economy.json", "w") as f:
+#     data = {}
+#
+#     for x in gini:
+#         area = x["sa3_name16"]
+#         coeff = x["gini_coefficient_no"]
+#
+#         data[area] = coeff
+#
+#     json.dump(data, f
+
+
+#
+# trust = setup_geo_trust_data()
+# with open(str(path) + "/front-end/public/json/aurin/sa2_trust.json", "w") as f:
+#     data = {}
+#
+#     for x in trust:
+#         area = x["sa2_name16"]
+#         t = x["trust_1_3_pc_synth"]
+#
+#         if t is not None:
+#             data[area] = round(t,2)
+#         else:
+#             data[area] = "NaN"
+#
+#     json.dump(data, f)
+
+# trust = setup_migration_data()
+# with open(str(path) + "/front-end/public/json/aurin/sa2_migration.json", "w") as f:
+#     data = {}
+#
+#     for x in trust:
+#         area = x["sa2_name16"]
+#         t = x["total_migration_rate"]
+#
+#         if t is not None:
+#             data[area] = round(t,2)
+#         else:
+#             data[area] = "NaN"
+#
+#     json.dump(data, f)

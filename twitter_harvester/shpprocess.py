@@ -16,9 +16,9 @@ class SHPProcessor():
     # load shape/geometry data for SA2/SA3 neighbourhood, depending on filename
     def __init__(self, type):
         if type == "SA2":
-            filename = parent_path + "shpfiles/SA2_2016_AUST.shp"
+            filename = str(parent_path) + "/shpfiles/SA2_2016_AUST.shp"
         elif type == "SA3":
-            filename =  parent_path + "shpfiles/SA3_2016_AUST.shp"
+            filename =  str(parent_path) + "/shpfiles/SA3_2016_AUST.shp"
 
         s = geopandas.read_file(filename)
         self.sadata = s[~s.geometry.isna()]
