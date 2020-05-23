@@ -43,17 +43,29 @@
             style: 'mapbox://styles/s-karki/ckaey1ma50dsb1io87ny4c08k'
             });
 
-            $.getJSON("static/js/sa2.geojson", function(data) {
+            sa2pop = {}
+            // get pop counts
+            $.getJSON("static/json/sa2_population.json", function(data) {
+              data.features.forEach(function(place) {
+                sa2pop[place.properties.sa2_name16] = place.properties.persons_num;
+              });
+            });
+
+            $.getJSON("static/json/sa2.geojson", function(data) {
               data.features.forEach(function(marker) {
                 // create a HTML element for each feature
                 var el = document.createElement('div');
                 el.className = 'marker';
 
+                area = marker.properties.area;
+                population = sa2pop[area;
 
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML('<p>' + 'area: ' +  marker.properties.area + '</p><p>' + 'Sentiment score: ' + marker.properties.sentiment_score + '</p>'))
+                .setHTML('<p>' + 'area: ' +  area + '</p>'
+                        + '<p>' + 'population: ' + population + '</p>'
+                        + '<p>' + 'Sentiment score: ' + marker.properties.sentiment_score + '</p>'))                
                 .addTo(map);
 
               });

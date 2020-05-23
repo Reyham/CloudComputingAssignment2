@@ -48,22 +48,35 @@
 
 
           <script>
+
             mapboxgl.accessToken = 'pk.eyJ1Ijoicy1rYXJraSIsImEiOiJja2FleHYzZTkwcTNnMnhsZDlhaW12cGkzIn0.X5DdzZBZmrDsTYr1fAWKgA';
             let map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/s-karki/ckagdrfgj0kxs1io6g9oc6zsb'
             });
-            $.getJSON("static/js/sa3.geojson", function(data) {
+
+            sa3pop = {}
+            // get population counts
+            $.getJSON("static/json/sa3_population.json", function(data) {
+              data.features.forEach(function(place) {
+                sa3pop[place.properties.sa3_name16] = place.properties.persons_total;
+              });
+            });
+
+            $.getJSON("static/json/sa3.geojson", function(data) {
               data.features.forEach(function(marker) {
                 // create a HTML element for each feature
                 var el = document.createElement('div');
                 el.className = 'marker';
-
+                area = marker.properties.area
+                population = sa3pop[area]
 
                 new mapboxgl.Marker(el)
                 .setLngLat(marker.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML('<p>' + 'area: ' +  marker.properties.area + '</p><p>' + 'COVID-related tweet count: ' + marker.properties.covid_tweets + '</p>'))
+                .setHTML('<p>' + 'area: ' +  area + '</p>'
+                        + '<p>' + 'population: ' + population + '</p>'
+                        + '<p>' + 'COVID-related tweet count: ' + marker.properties.covid_tweets + '</p>'))
                 .addTo(map);
 
               });
