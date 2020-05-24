@@ -16,8 +16,10 @@ from urllib3.exceptions import ProtocolError
 
 import pathlib
 path_ = pathlib.Path(__file__).parent.absolute()
-path = str(path)
-parent_path = str(path.parent.absolute())
+parent_ = path_.parent.absolute()
+
+path = str(path_)
+parent_path = str(parent_)
 
 
 '''

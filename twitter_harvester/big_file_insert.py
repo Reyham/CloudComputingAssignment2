@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 from itertools import islice
-from tweet_processor import TweetProcessor
+from twitter_harvester.tweet_processor import TweetProcessor
 from couch_setup import CouchDBInstance
 
 couch_db = CouchDBInstance()
 
 def insert_to_couch(tweet):
-    status = tweet_processor.process_status(status)
-        if status == None:
+    status = TweetProcessor().process_status(tweet)
+        if status is None:
             return True
-        couchdb.insertTweet(status)
+        couch_db.insertTweet(tweet)
 
 if __name__ == "__main__":
     
