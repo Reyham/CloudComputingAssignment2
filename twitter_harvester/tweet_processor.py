@@ -2,7 +2,7 @@ import nltk, re, json, time, sys
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import os
-from shpprocess import SHPProcessor
+from twitter_harvester.shpprocess import SHPProcessor
 
 import pathlib
 path = str(pathlib.Path(__file__).parent.absolute())
