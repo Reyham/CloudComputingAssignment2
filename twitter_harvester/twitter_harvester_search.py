@@ -14,6 +14,10 @@ from tweepy.streaming import StreamListener
 from couch_setup import CouchDBInstance
 from urllib3.exceptions import ProtocolError
 
+# import pathlib
+# path_ = pathlib.Path(__file__).parent.absolute()
+# path = str(path_)
+# parent_path = str(path.parent.absolute())
 import pathlib
 path_ = pathlib.Path(__file__).parent.absolute()
 parent_ = path_.parent.absolute()
