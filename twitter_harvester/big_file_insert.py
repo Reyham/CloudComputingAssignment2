@@ -8,9 +8,9 @@ couch_db = CouchDBInstance()
 
 def insert_to_couch(tweet):
     status = TweetProcessor().process_status(tweet)
-        if status is None:
-            return True
-        couch_db.insertTweet(tweet)
+    if status is None:
+        return True
+    couch_db.insertTweet(tweet)
 
 if __name__ == "__main__":
     
