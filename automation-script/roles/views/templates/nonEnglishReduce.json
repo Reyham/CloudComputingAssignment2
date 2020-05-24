@@ -1,0 +1,9 @@
+{
+    "_id": "_design/language",
+    "views": {
+      "language": {
+        "reduce": "_sum",
+        "map": "function (doc) {if (doc.lang && doc.lang !== 'en')   emit(doc.sa2_name16, 1);}"
+      }
+    }
+  }

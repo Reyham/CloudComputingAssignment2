@@ -1,0 +1,92 @@
+- name: Instance Creation
+  hosts: localhost
+  vars_files:
+    - host_vars/inventory.yaml
+  gather_facts: true
+  roles:
+    - role: openstack-volume
+    - role: openstack-security-group
+    - role: openstack-instance
+
+- name: Instance Setup
+  hosts: Testgroup
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+    size: 4
+    user: admin
+    password: admin
+    version: '3.0.0'
+    cookie: 'a192aeb9904e6590849337933b000c99'
+    uuid: 'a192aeb9904e6590849337933b001159'
+  vars_files:
+    - secrets.yaml 
+  roles: 
+    - role: openstack-proxy
+    - role: openstack-mount-volumes # Run only while creating the instances for the first time
+    - role: openstack-dependencies
+    - role: couchdb-docker-dependencies
+    - role: couchdb-docker
+    - role: create-database
+    - role: views
+    - role: clone-repository
+  environment:
+    HTTP_PROXY: http://wwwproxy.unimelb.edu.au:8000/
+    HTTPS_PROXY: http://wwwproxy.unimelb.edu.au:8000/
+    http_proxy: http://wwwproxy.unimelb.edu.au:8000/
+    https_proxy: http://wwwproxy.unimelb.edu.au:8000/
+    no_proxy: localhost,127.0.0.1,localaddress,172.16.0.0/12,.melbourne.rc.nectar.org.au,.storage.unimelb.edu.au,.cloud.unimelb.edu.au
+
+- hosts: Testgroup[1]
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+  tasks:
+  - name: Run Cloud Harvester
+    become: yes
+    command: nohup python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py cloud 
+    async: 45
+    poll: 0
+  
+- hosts: Testgroup[2]
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+  tasks:
+  - name: Run Stream Harvester  
+    become: yes
+    command: nohup python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py stream
+    async: 45
+    poll: 0
+
+- hosts: Testgroup[3]
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+    tasks:
+    - name: Run Search Harvester
+      become: yes
+      command: nohup python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py search
+      async: 45
+      poll: 0
+
+- hosts: Testgroup[0]
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+  tasks:
+  - name: Run Front-End
+    become: yes
+    command: node /home/ubuntu/git-repo/CloudComputingAssignment2/front-end/index.js
+    async: 45
+    poll: 0

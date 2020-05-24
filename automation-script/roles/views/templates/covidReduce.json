@@ -1,0 +1,9 @@
+{
+    "_id": "_design/covid",
+    "views": {
+      "covid": {
+        "reduce": "_sum",
+        "map": "function (doc) {if (doc.doc_type === \"tweet\") { emit([doc.sa2_name16, doc.covid_relevant], 1)  }}"
+      }
+    }
+  }
