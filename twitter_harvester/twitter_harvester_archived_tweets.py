@@ -66,6 +66,7 @@ def harvest_cloud_city_tweets(city, tp):
 
 	limit = 50
 	couchdb = CouchDBInstance()
+	tp = TweetProcessor()
 
 	start_year, start_month, start_day = 2020,1,1
 	now = datetime.datetime.now() - datetime.timedelta(days=5)

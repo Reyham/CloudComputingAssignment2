@@ -10,6 +10,19 @@ Technologies:
 - Twitter Harvester https://developer.twitter.com/en
 - AURIN openApi https://aurin.org.au/aurin-apis/
 - CouchDB https://couchdb.apache.org/
+- MapBox: https://www.mapbox.com/
+- D3.js: https://d3js.org/
 
-Due date:
-20/05/2020
+On a linux system:
+sudo apt-get update
+sudo apt-get install
+
+
+Install Python dependencies:
+pip -r requirements.txt
+
+To run the Twitter Harvester:
+python3 run.py [stream | cloud | home] (any combination of 3)
+
+
+Install NodeJS dependencies:

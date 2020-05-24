@@ -3,6 +3,10 @@ import pandas as pd
 from shapely.geometry import Polygon
 from geojson import Feature, Point, FeatureCollection
 
+import pathlib
+path_ = pathlib.Path(__file__).parent.absolute()
+path = str(path)
+parent_path = str(path.parent.absolute())
 
 filename = "../shpfiles/SA2_2016_AUST.shp"
 s = geopandas.read_file(filename)
@@ -30,10 +34,6 @@ def createGeoJson(data, type,attributes=None):
             name = row[key]
             point = Point((ctr.x, ctr.y))
             props = {"area":name}
-
-            #TODO:
-            #22/5: upload couchdb data and send to front-end
-            #23/5: mapreduce
 
             feature = Feature(geometry=point, properties=props)
             fcollection.append(feature)
