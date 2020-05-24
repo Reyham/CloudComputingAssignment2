@@ -70,8 +70,11 @@ class TweetProcessor():
                 if score is not None:
                     tweet_with_location['score'] = score
             try:
-                id = tweet_with_location.pop('_id')
-                tweet_with_location.pop('id')
+                if '_id' in tweet_with_location:
+                    id = tweet_with_location.pop('_id')
+                if 'id' in tweet_with_location:
+                    tweet_with_location.pop('id')
+                
                 tweet_with_location['tweet_id'] = int(id)
                 tweet_with_location['tweet_id_str'] = tweet_with_location.pop('id_str')
                 tweet_with_location['doc_source'] = "couchdb"
