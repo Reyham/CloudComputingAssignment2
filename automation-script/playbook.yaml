@@ -13,7 +13,7 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: ubuntu
-    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_private_key_file: final_key.pem
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
     size: 4
     user: admin
@@ -43,12 +43,12 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: ubuntu
-    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_private_key_file: final_key.pem
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
   tasks:
   - name: Run Cloud Harvester
     become: yes
-    command: nohup python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py cloud 
+    shell: python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py cloud 
     async: 45
     poll: 0
   
@@ -56,12 +56,12 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: ubuntu
-    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_private_key_file: final_key.pem
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
   tasks:
   - name: Run Stream Harvester  
     become: yes
-    command: nohup python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py stream
+    shell: python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py stream
     async: 45
     poll: 0
 
@@ -69,12 +69,12 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: ubuntu
-    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_private_key_file: final_key.pem
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
     tasks:
     - name: Run Search Harvester
       become: yes
-      command: nohup python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py search
+      shell: python3 -u /home/ubuntu/git-repo/CloudComputingAssignment2/run.py search
       async: 45
       poll: 0
 
@@ -82,11 +82,9 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: ubuntu
-    ansible_ssh_private_key_file: /Users/hemanthchalla/Documents/cloud-project/my-script/hemanth_test.pem
+    ansible_ssh_private_key_file: final_key.pem
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
   tasks:
   - name: Run Front-End
     become: yes
-    command: node /home/ubuntu/git-repo/CloudComputingAssignment2/front-end/index.js
-    async: 45
-    poll: 0
+    shell: node /home/ubuntu/git-repo/CloudComputingAssignment2/front-end/index.js

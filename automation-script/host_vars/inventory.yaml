@@ -56,7 +56,7 @@ security_groups:
     port_range_max: 4369
     remote_ip_prefix: 0.0.0.0/0 
   
-  - name: Port for Node front-end
+  - name: Node Front-End Port
     description: "Security group for Node Front-End"
     protocol: tcp
     port_range_min: 3000
@@ -83,5 +83,5 @@ instances:
  
 # NeCTAR Ubuntu 18.04 LTS (Bionic) amd64    
 instance_image: 45225edb-66d8-4fd0-bf41-132a31a18166 
-instance_key_name: hemanth_test
+instance_key_name: final_key
 instance_flavor: uom.mse.2c9g

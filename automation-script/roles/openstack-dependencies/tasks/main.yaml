@@ -3,7 +3,7 @@
 - name: Install Base Dependencies
   become: yes
   apt:
-    name: ['apt-transport-https','gnupg','ca-certificates']
+    name: ['apt-transport-https','gnupg','ca-certificates','xfsprogs']
     state: latest
     install_recommends: no
     update_cache: yes
@@ -45,7 +45,7 @@
 - name: Upload Python Requirements File
   become: yes
   copy: 
-    src: /Users/hemanthchalla/Documents/cloud-project/my-script/roles/openstack-dependencies/tasks/requirements.txt
+    src: roles/openstack-dependencies/tasks/requirements.txt
     dest: /home/ubuntu/requirements.txt
 
 - name: Install Python Dependencies

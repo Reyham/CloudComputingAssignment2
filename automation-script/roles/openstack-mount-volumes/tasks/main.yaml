@@ -1,12 +1,4 @@
 ---
-    - name: Install dependencies
-      become: yes
-      apt:
-        name: ['xfsprogs']
-        state: latest
-        install_recommends: no
-        update_cache: yes
-
     - name: Create an ext4 filesystem on /dev/vdb
       become: yes
       shell: mkfs.ext4 /dev/vdb
