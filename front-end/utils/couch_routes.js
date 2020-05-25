@@ -1,6 +1,6 @@
 const express = require('express');
-const nano = require('nano')('http://admin:1234@localhost:5984');
-const store = nano.db.use('db6');
+const nano = require('nano')('http://admin:admin@localhost:5984');
+const store = nano.db.use('database');
 
 get_view = async function(view_name) {
 
