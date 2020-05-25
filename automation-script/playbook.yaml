@@ -21,8 +21,8 @@
     version: '3.0.0'
     cookie: 'a192aeb9904e6590849337933b000c99'
     uuid: 'a192aeb9904e6590849337933b001159'
-  vars_files:
-    - secrets.yaml 
+  # vars_files:
+  #   - secrets.yaml 
   roles: 
     - role: openstack-proxy
     - role: openstack-mount-volumes # Run only while creating the instances for the first time
@@ -88,3 +88,5 @@
   - name: Run Front-End
     become: yes
     shell: node /home/ubuntu/git-repo/CloudComputingAssignment2/front-end/index.js
+    async: 45
+    poll: 0

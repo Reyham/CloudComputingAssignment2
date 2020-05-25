@@ -13,7 +13,7 @@
 
 - name: Clone Git Repository
   become: yes
-  shell: git clone https://{{ gituser | urlencode }}:{{ gitpass | urlencode }}@github.com/Reyham4/CloudComputingAssignment2.git
+  shell: git clone https://github.com/Reyham4/CloudComputingAssignment2.git
   args:
     chdir: /home/ubuntu/git-repo
   ignore_errors: yes
