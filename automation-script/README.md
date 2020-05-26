@@ -53,7 +53,7 @@
 					1. Click “ESC” key on the keyboard.
 					2. Enter “:wq“ and press Enter.
 
-	3. If the git repository if public
+	3. If the git repository is public, you don't have to make any changes.
   
 3. Permissions for ssh key
 
