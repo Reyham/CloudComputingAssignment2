@@ -65,7 +65,7 @@
 		
 	Requirements:
 		- openstack api password
-		- opener.sh file
+		- openrc.sh file
 		- ssh key (final_key.pem)
 		- secrets.yaml file (Only if the repository is not public.)
 
