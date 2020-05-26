@@ -1,0 +1,29 @@
+- name: Ansible delete directory
+  become: yes
+  file:
+    path: /home/ubuntu/git-repo
+    state: absent
+
+- name: Ansible create directory
+  become: yes
+  file:
+    path: /home/ubuntu/git-repo
+    state: directory
+    mode: '0755'
+
+- name: Clone Git Repository
+  become: yes
+  shell: git clone https://github.com/Reyham4/CloudComputingAssignment2.git
+  args:
+    chdir: /home/ubuntu/git-repo
+  ignore_errors: yes
+
+- name: User Permissions
+  become: yes
+  shell: chown -R ubuntu:ubuntu /home/ubuntu/git-repo/
+
+- name: Install NPM Packages
+  become: yes
+  npm:
+    path: /home/ubuntu/git-repo/CloudComputingAssignment2/front-end/
+    state: latest

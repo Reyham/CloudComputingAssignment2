@@ -1,0 +1,18 @@
+---
+    - name: Create an ext4 filesystem on /dev/vdb
+      become: yes
+      shell: mkfs.ext4 /dev/vdb
+      
+    - name: Create directory if it does not exist
+      file:
+        path: /home/ubuntu/data
+        state: directory
+        mode: '0755'
+    
+    - name: Mount volume
+      become: yes
+      mount:
+        path: /home/ubuntu/data
+        src: /dev/vdb
+        state: mounted
+        fstype: ext4

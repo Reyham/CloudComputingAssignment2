@@ -1,0 +1,55 @@
+# Installation of dependencies
+
+- name: Install Base Dependencies
+  become: yes
+  apt:
+    name: ['apt-transport-https','gnupg','ca-certificates','xfsprogs']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Curl the repo's of nodejs
+  become: yes
+  shell: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+
+- name: Install Dependencies
+  tags: always
+  become: yes
+  apt:
+    name: ['build-essential',
+     'python3-dev',
+     'python3-pip',
+     'python3-setuptools',
+     'python3-venv',
+     'git-all',
+     'software-properties-common',
+     'unzip',
+     'vim',
+     'curl',
+     'nodejs',
+     'libcurl4-openssl-dev',
+     'libssl-dev',
+     'libspatialindex-dev']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 
+
+- name: Upload Python Requirements File
+  become: yes
+  copy: 
+    src: roles/openstack-dependencies/tasks/requirements.txt
+    dest: /home/ubuntu/requirements.txt
+
+- name: Install Python Dependencies
+  become: yes
+  pip:
+    requirements: /home/ubuntu/requirements.txt
+    state: present
